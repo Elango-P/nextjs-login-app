@@ -117,7 +117,7 @@ export default function PublicProfile({ params }) {
             <Link className="w-4 h-4 text-sky-500" /> LinkedIn Profile
           </a>
           <a
-  href="https://portfolio-roan-five-79.vercel.app/elango/profile"
+  href="https://elango-p.vercel.app/elango/profile"
   target="_blank"
   rel="noopener noreferrer"
   className="hover:text-sky-600 transition-colors flex items-center gap-2 font-medium"
