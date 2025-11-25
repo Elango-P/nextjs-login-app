@@ -44,7 +44,7 @@ export default function PublicProfile({ params }) {
     const [{ data: projs }, { data: exps }, { data: eds }, { data: sks }] =
       await Promise.all([
         supabase.from("projects").select("*").eq("user_id", userId),
-        supabase.from("experience").select("*").eq("user_id", userId),
+        supabase.from("experience").select("*").eq("user_id", userId).order("start_date", { ascending: false }),
         supabase.from("education").select("*").eq("user_id", userId),
         supabase.from("skills").select("*").eq("user_id", userId),
       ]);

@@ -38,7 +38,6 @@ export default function Dashboard() {
   const [projects, setProjects] = useState([]);
   const [experience, setExperience] = useState([]);
   const [education, setEducation] = useState([]);
-  console.log('experience ---------------------------->', experience);
   const [skills, setSkills] = useState([]);
   const [address, setAddress] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -570,136 +569,164 @@ const uploadFile = async (file) => {
   // Resume generation (basic)
   // ---------------------------------------------------------
 const downloadResume = () => {
-  const doc = new jsPDF();
-  let y = 15;
+  try {
+    const doc = new jsPDF();
+    let y = 20; // starting Y
 
-  // ---------- HEADER ----------
-  doc.setFontSize(22);
-  doc.setFont("helvetica", "bold");
-  doc.text(profile.full_name || "Your Name", 15, y);
-  y += 10;
-
-  doc.setFontSize(11);
-  doc.setFont("helvetica", "normal");
-  doc.text(`${profile.email || ""} | ${profile.phone || ""}`, 15, y);
-  y += 6;
-
-//   if (address) {
-//     const addr = `${address.street || ""}, ${address.city || ""}, ${address.state || ""} - ${address.pincode}`;
-//     doc.text(addr, 15, y);
-//     y += 10;
-//   }
-
-  // ---------- HEADLINE / SUMMARY ----------
-  if (profile.headline) {
-    doc.setFontSize(14);
+    const pageWidth = doc.internal.pageSize.getWidth();
+const margin = 15;
+const maxWidth = pageWidth - margin * 2;
+    // ---------- HEADER ----------
+    doc.setFontSize(22);
     doc.setFont("helvetica", "bold");
-    doc.text(profile.headline, 15, y);
-    y += 10;
-  }
-
-  // ---------- SKILLS ----------
-  doc.setFontSize(16);
-  doc.setFont("helvetica", "bold");
-  doc.text("Skills", 15, y);
-  y += 8;
-
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "normal");
-  doc.text(skills.map((s) => s.skill_name).join(", "), 15, y);
-  y += 12;
-
-  // ---------- EXPERIENCE ----------
-  doc.setFontSize(16);
-  doc.setFont("helvetica", "bold");
-  doc.text("Experience", 15, y);
-  y += 8;
-
-  experience.forEach((exp) => {
-    doc.setFontSize(13);
-    doc.setFont("helvetica", "bold");
-    doc.text(`${exp.role} — ${exp.company_name}`, 15, y);
-    y += 6;
+    doc.text(profile.full_name || "Your Name", pageWidth / 2, y, { align: "center" });
+    y += 8;
 
     doc.setFontSize(11);
-    doc.setFont("helvetica", "italic");
-    doc.text(`${exp.start_date} — ${exp.end_date || "Present"}`, 15, y);
-    y += 6;
+    doc.setFont("helvetica", "normal");
+    doc.text(`${profile.email || ""} | ${9600576351 || ""} | https://www.linkedin.com/in/p-elango-881ba2139/`, pageWidth / 2, y, { align: "center" });
+    y += 12;
+
+    if (profile.linkedin) {
+      doc.setTextColor("#0077b5"); // LinkedIn blue
+      doc.text(`${profile.linkedin}`, pageWidth / 2, y, { align: "center" });
+      doc.setTextColor(0, 0, 0); // reset to black
+      y += 12;
+    }
+
+    // ---------- HEADLINE / SUMMARY ----------
+    if (profile.headline) {
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Summary", 15, y);
+      y += 7;
+
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      const summaryLines = doc.splitTextToSize(profile.headline, 180);
+      doc.text(summaryLines, 15, y);
+      y += summaryLines.length * 6 + 6;
+    }
+
+    // ---------- SKILLS ----------
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("Skills", 15, y);
+    y += 8;
 
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
-    const lines = doc.splitTextToSize(exp.description.replace(/\n/g, " "), 180);
-    doc.text(lines, 15, y);
-    y += lines.length * 6 + 8;
-  });
+    const skillText = skills.map((s) => s.skill_name).join(", ");
+    const skillLines = doc.splitTextToSize(skillText, 180);
+    doc.text(skillLines, 15, y);
+    y += skillLines.length * 6 + 8;
 
-  // ---------- PROJECTS ----------
- // ---------- PROJECTS ----------
-doc.setFontSize(16);
-doc.setFont("helvetica", "bold");
-doc.text("Projects", 15, y);
-y += 10;
+    // ---------- EXPERIENCE ----------
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("Experience", 15, y);
+    y += 8;
 
-// Loop through all projects
+    experience.forEach((exp) => {
+      if (y > 270) { doc.addPage(); y = 20; }
+
+      // Role & Company
+      doc.setFontSize(13);
+      doc.setFont("helvetica", "bold");
+      doc.text(`${exp.role} — ${exp.company_name}`, 15, y);
+      y += 6;
+
+      // Dates
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "italic");
+      doc.text(`${exp.start_date} — ${exp.end_date || "Present"}`, 15, y);
+      y += 6;
+
+      // Description
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      const lines = doc.splitTextToSize(exp.description.replace(/\n/g, " "), 180);
+      doc.text(lines, 15, y);
+      y += lines.length * 6 + 8;
+    });
+
+    // ---------- PROJECTS ----------
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("Projects", 15, y);
+    y += 8;
+
+   // ---------- PROJECTS ----------
 projects.forEach((p) => {
-  const name = String(p.title || "");
-  const stack = String(p.tech_stack || "");
-  const desc = String(p.description || "").replace(/\n/g, " ");
-
-  // If near bottom of page → add new page
-  if (y > 270) {
-    doc.addPage();
-    y = 20;
+  if (y > 270) { 
+    doc.addPage(); 
+    y = 20; 
   }
 
   // Project Title
   doc.setFontSize(14);
   doc.setFont("helvetica", "bold");
-  doc.text(name, 15, y);
-  y += 2;
+  doc.text(p.title || "", 15, y);
+  y += 6;
 
-  // Stack
+  // Tech Stack
   doc.setFontSize(11);
   doc.setFont("helvetica", "italic");
-  doc.text(`${stack}`, 15, y);
-  y += 4;
+  doc.text(p.tech_stack || "", 15, y);
+  y += 5;
 
-  // Description (wrapped text)
+  // Description
   doc.setFontSize(12);
   doc.setFont("helvetica", "normal");
-  const descLines = doc.splitTextToSize(desc, 180);
+  const descLines = doc.splitTextToSize((p.description || "").replace(/\n/g, " "), 180);
   doc.text(descLines, 15, y);
-
-  y += descLines.length * 6 + 5; // ← IMPORTANT SPACING
+  y += descLines.length * 6 + 10;
 });
 
+// ---------- EDUCATION ----------
+if (y + 60 > 297) { // If not enough space for Education, add a new page
+  doc.addPage();
+  y = 20;
+} else {
+  y += 20; // Add extra spacing before Education
+}
 
-  // ---------- EDUCATION ----------
-  doc.setFontSize(16);
+doc.setFontSize(16);
+doc.setFont("helvetica", "bold");
+doc.text("Education", 15, y);
+y += 8;
+
+education.forEach((e) => {
+  if (y > 270) { 
+    doc.addPage(); 
+    y = 20; 
+  }
+
+  doc.setFontSize(13);
   doc.setFont("helvetica", "bold");
-  doc.text("Education", 15, y);
-  y += 8;
+  const degreeLines = doc.splitTextToSize(e.degree || "", maxWidth);
+  doc.text(degreeLines, margin, y);
+  y += degreeLines.length * 6; // adjust for line height
 
-  education.forEach((e) => {
-    doc.setFontSize(13);
-    doc.setFont("helvetica", "bold");
-    doc.text(e.degree, 15, y);
-    y += 6;
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "normal");
+  const instituteLines = doc.splitTextToSize(e.institute || "", maxWidth);
+  doc.text(instituteLines, margin, y);
+  y += instituteLines.length * 6;
 
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "normal");
-    doc.text(e.institution, 15, y);
-    y += 6;
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "italic");
+  doc.text(`${e.start_year || ""} — ${e.end_year || "Present"}`, margin, y);
+  y += 10;
+});
 
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "italic");
-    doc.text(`${e.start_date} — ${e.end_date || "Present"}`, 15, y);
-    y += 12;
-  });
-
-  // ---------- SAVE ----------
-  doc.save(`${profile.full_name || "resume"}.pdf`);
+    // ---------- SAVE ----------
+    doc.save(`${profile.full_name || "resume"}.pdf`);
+  } catch (err) {
+    console.error("Error generating resume:", err);
+  }
 };
+
 
 
   // ---------------------------------------------------------
@@ -758,7 +785,7 @@ projects.forEach((p) => {
           <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="col-span-1 bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
             <div className="flex flex-col items-center">
               <img
-                src={profile.profile_photo || profile.photo_url || "https://media.licdn.com/dms/image/v2/D5603AQFBfFSIBT2EIQ/profile-displayphoto-crop_800_800/B56ZjkiLSuHcAM-/0/1756180822130?e=1765411200&v=beta&t=-sly5ufhDlCoffhhuwFBTo4MZ30jvIetpUtbq7plXV4"}
+                src={profile.profile_photo || profile.photo_url || "https://elangomedia.s3.ap-southeast-2.amazonaws.com/product/180-product-4794-20251125201841.png"}
                 alt="avatar"
                 className="w-32 h-32 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
               />
