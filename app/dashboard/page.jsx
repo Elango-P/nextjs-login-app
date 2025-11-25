@@ -17,7 +17,6 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import autoTable from "jspdf-autotable";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -38,7 +37,6 @@ export default function Dashboard() {
   const [projects, setProjects] = useState([]);
   const [experience, setExperience] = useState([]);
   const [education, setEducation] = useState([]);
-  console.log('experience ---------------------------->', experience);
   const [skills, setSkills] = useState([]);
   const [address, setAddress] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -758,7 +756,7 @@ projects.forEach((p) => {
           <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="col-span-1 bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
             <div className="flex flex-col items-center">
               <img
-                src={profile.profile_photo || profile.photo_url || "https://media.licdn.com/dms/image/v2/D5603AQFBfFSIBT2EIQ/profile-displayphoto-crop_800_800/B56ZjkiLSuHcAM-/0/1756180822130?e=1765411200&v=beta&t=-sly5ufhDlCoffhhuwFBTo4MZ30jvIetpUtbq7plXV4"}
+                src={profile.profile_photo || profile.photo_url || "https://elangomedia.s3.ap-southeast-2.amazonaws.com/product/180-product-4794-20251125201841.png"}
                 alt="avatar"
                 className="w-32 h-32 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
               />

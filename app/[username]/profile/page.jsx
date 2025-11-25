@@ -3,18 +3,20 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../utils/supabaseClient";
 import { motion } from "framer-motion";
+// Importing Lucide icons for a modern, consistent look
+import { Mail, Phone, Link, Briefcase, GraduationCap, Zap, Code, ListChecks, Globe } from 'lucide-react';
+
+// --- Component Definition ---
 
 export default function PublicProfile({ params }) {
   const [profile, setProfile] = useState(null);
   const [projects, setProjects] = useState([]);
-  console.log('PublicProfile > profile ---------------------------->', profile);
   const [experience, setExperience] = useState([]);
   const [education, setEducation] = useState([]);
   const [skills, setSkills] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ... (Data Loading Logic Remains the Same) ...
-
+  // --- Data Loading Logic (Unchanged) ---
   useEffect(() => {
     loadData();
   }, []);
@@ -22,6 +24,8 @@ export default function PublicProfile({ params }) {
   async function loadData() {
     setLoading(true);
 
+    // NOTE: This should ideally use params.id or params.slug for dynamic routing.
+    // Keeping "elango" as per original implementation for demonstration.
     const { data: userData } = await supabase
       .from("users")
       .select("*")
@@ -45,8 +49,8 @@ export default function PublicProfile({ params }) {
         supabase.from("skills").select("*").eq("user_id", userId),
       ]);
 
-    // --- TEMPORARY: Injecting content for demonstration. In a real app, this data would come from the database.
-    const augmentedExperience = exps.map(exp => ({
+    // --- TEMPORARY: Injecting content for demonstration. ---
+    const augmentedExperience = (exps || []).map(exp => ({
         ...exp,
         // Assuming the description field holds the full details or is replaced by this array
         bullet_points: [
@@ -54,23 +58,23 @@ export default function PublicProfile({ params }) {
         ]
     }));
 
-    const augmentedProjects = projs.map(proj => ({
+    const augmentedProjects = (projs || []).map(proj => ({
       ...proj,
       // Assuming project descriptions or a separate details field
       details: [
-        ...(proj.description ? proj.description: []), 
+        ...(proj.description ? [proj.description]: []), 
       ]
     }));
     // --- END TEMPORARY INJECTION ---
 
-
-    setProjects(augmentedProjects || []);
-    setExperience(augmentedExperience || []);
+    setProjects(augmentedProjects);
+    setExperience(augmentedExperience);
     setEducation(eds || []);
     setSkills(sks || []);
     setLoading(false);
   }
 
+  // --- UI Logic ---
   if (loading) return <p className="p-8 text-center text-gray-600">Loading...</p>;
   if (!profile) return <p className="p-8 text-center text-red-600">User not found</p>;
 
@@ -79,166 +83,211 @@ export default function PublicProfile({ params }) {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
 
+  // --- Helper Functions for Section Rendering ---
+
+  const renderHeaderSection = (profile, fadeUp) => (
+    <motion.div
+      className="flex flex-col md:flex-row items-center gap-8 border-b border-gray-200 pb-8"
+      variants={fadeUp}
+    >
+      {/* Profile Image */}
+      <img
+        src={"https://elangomedia.s3.ap-southeast-2.amazonaws.com/product/180-product-4794-20251125201841.png"}
+        alt="Profile photo"
+        className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover ring-2 ring-sky-500 ring-offset-4 shadow-xl"
+      />
+      <div className="text-center md:text-left">
+        <h1 className="text-4xl font-extrabold text-gray-900 tracking-tighter leading-none">Elango Ponnusamy</h1>
+        <p className="mt-2 text-2xl font-light text-gray-600">{profile.bio}</p>
+
+        {/* Contact Info with Lucide Icons */}
+        <div className="mt-6 flex flex-wrap justify-center md:justify-start gap-x-8 gap-y-3 text-sm text-gray-600">
+          <a href="mailto:b.elango93@gmail.com" className="hover:text-sky-600 transition-colors flex items-center gap-2 font-medium">
+            <Mail className="w-4 h-4 text-sky-500" /> b.elango93@gmail.com
+          </a>
+          <span className="flex items-center gap-2 font-medium">
+            <Phone className="w-4 h-4 text-sky-500" /> 9600576351
+          </span>
+          <a
+            href="https://www.linkedin.com/in/p-elango-881ba2139/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-sky-600 transition-colors flex items-center gap-2 font-medium"
+          >
+            <Link className="w-4 h-4 text-sky-500" /> LinkedIn Profile
+          </a>
+          <a
+  href="https://portfolio-roan-five-79.vercel.app/elango/profile"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="hover:text-sky-600 transition-colors flex items-center gap-2 font-medium"
+>
+  {/* The Link icon is often used for external links, but if you want Globe for a website: */}
+  <Globe className="w-4 h-4 text-sky-500" />
+  {/* The text comes immediately after the icon */}
+  Website
+</a>
+        </div>
+      </div>
+    </motion.div>
+  );
+
+  const renderExperienceSection = (experience, fadeUp) => (
+    <motion.section variants={fadeUp}>
+      <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-gray-800 border-b-2 border-sky-400 pb-3 mb-6">
+        <Briefcase className="w-6 h-6 text-sky-500" /> Experience
+      </h2>
+      <div className="space-y-8">
+        {experience.map((exp) => (
+          <motion.div
+            key={exp.id}
+            className="p-6 bg-white border-l-4 border-sky-500 shadow-md rounded-lg transition-shadow duration-300 hover:shadow-xl"
+            whileHover={{ x: 3 }}
+          >
+            <div className="flex justify-between items-start flex-wrap mb-1">
+              <h3 className="text-xl font-extrabold text-gray-900 leading-tight">{exp.role}</h3>
+              <p className="text-sm font-semibold text-gray-500 whitespace-nowrap pt-1">
+                {exp.start_date} - {exp.end_date || "Present"}
+              </p>
+            </div>
+            <p className="text-lg font-medium text-sky-600">{exp.company_name}</p>
+            
+            {exp.bullet_points && exp.bullet_points.length > 0 ? (
+              <ul className="mt-4 text-gray-700 space-y-2">
+                {exp.bullet_points.map((point, index) => (
+                  <li key={index} className="text-base flex items-start gap-2">
+                    <ListChecks className="w-4 h-4 mt-1 text-green-500 flex-shrink-0" />
+                    <span className="leading-relaxed">{point}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-3 text-gray-700 leading-relaxed">{exp.description}</p>
+            )}
+          </motion.div>
+        ))}
+      </div>
+    </motion.section>
+  );
+
+  const renderProjectsSection = (projects, fadeUp) => (
+    <motion.section variants={fadeUp}>
+      <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-gray-800 border-b-2 border-sky-400 pb-3 mb-6">
+        <Code className="w-6 h-6 text-sky-500" /> Projects
+      </h2>
+      <div className="grid md:grid-cols-2 gap-8">
+        {projects.map((proj) => (
+          <motion.div
+            key={proj.id}
+            className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl hover:border-sky-300"
+            whileHover={{ y: -4 }}
+          >
+            {proj.image_url ? (
+                <img src={proj.image_url} alt={proj.title} className="w-full h-40 object-cover border-b border-gray-200" />
+            ) : (
+                <div className="h-2 bg-sky-500"></div> 
+            )}
+            
+            <div className="p-5">
+              <h3 className="font-extrabold text-xl text-sky-700 mb-2">{proj.title}</h3>
+              
+              {proj.details && proj.details.length > 0 ? (
+                <ul className="mt-3 text-gray-600 space-y-1">
+                  {proj.details.map((detail, index) => (
+                    <li key={index} className="text-sm flex items-start gap-2">
+                      <span className="text-sky-500 font-bold flex-shrink-0">•</span>
+                      {detail}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-gray-600 text-sm">{proj.description}</p>
+              )}
+              
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </motion.section>
+  );
+
+  const renderSkillsSection = (skills, fadeUp) => (
+    <motion.section variants={fadeUp} className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+      <h2 className="flex items-center gap-3 text-2xl font-bold tracking-tight text-gray-800 border-b border-sky-400 pb-3 mb-5">
+        <Zap className="w-5 h-5 text-sky-500" /> Core Skills
+      </h2>
+      <div className="flex flex-wrap gap-3">
+        {skills.map((s) => (
+          <motion.span
+            key={s.id}
+            className="px-3 py-1 bg-sky-50 text-sky-700 rounded-full font-semibold text-sm border border-sky-200 shadow-sm transition-colors"
+            whileHover={{ scale: 1.05, backgroundColor: '#e0f2fe' }}
+          >
+            {s.skill_name}
+          </motion.span>
+        ))}
+      </div>
+    </motion.section>
+  );
+
+  const renderEducationSection = (education, fadeUp) => (
+    <motion.section variants={fadeUp} className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+      <h2 className="flex items-center gap-3 text-2xl font-bold tracking-tight text-gray-800 border-b border-sky-400 pb-3 mb-5">
+        <GraduationCap className="w-5 h-5 text-sky-500" /> Education
+      </h2>
+      <div className="space-y-4">
+        {education.map((ed) => (
+          <motion.div
+            key={ed.id}
+            className="p-3 bg-gray-50 rounded-lg border border-gray-200 transition-shadow hover:shadow-md"
+            whileHover={{ scale: 1.02 }}
+          >
+            <h3 className="text-lg font-bold text-gray-800 leading-tight">{ed.degree}</h3>
+            <p className="text-gray-700 text-sm font-medium">{ed.institute}</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {ed.start_year} - {ed.end_year}
+            </p>
+          </motion.div>
+        ))}
+      </div>
+    </motion.section>
+  );
+
+  // --- Main Render ---
+
   return (
-   <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
+   <div className="min-h-screen bg-gray-100 p-4 sm:p-8">
       <motion.div
-        className="max-w-6xl mx-auto space-y-8 bg-white shadow-2xl rounded-xl p-6 md:p-10"
+        className="max-w-7xl mx-auto bg-white shadow-2xl rounded-2xl p-6 md:p-12 border border-gray-200"
         initial="hidden"
         animate="visible"
         variants={{
           visible: { transition: { staggerChildren: 0.15 } },
         }}
       >
-        {/* Header Section (Unchanged from previous response) */}
-        <motion.div
-          className="flex flex-col md:flex-row items-center gap-6 p-4"
-          variants={fadeUp}
-        >
-          {/* Profile Image */}
-          <img
-            src={profile.profile_photo || "https://media.licdn.com/dms/image/v2/D5603AQFBfFSIBT2EIQ/profile-displayphoto-crop_800_800/B56ZjkiLSuHcAM-/0/1756180822130?e=1765411200&v=beta&t=-sly5ufhDlCoffhhuwFBTo4MZ30jvIetpUtbq7plXV4"}
-            alt="Profile photo"
-            className="w-28 h-28 md:w-36 md:h-36 rounded-full border-4 border-blue-600 object-cover shadow-lg"
-          />
-          <div className="text-center md:text-left">
-            <h1 className="text-5xl font-black text-blue-800 tracking-tighter">Elango Ponnusamy</h1>
-            <p className="mt-1 text-xl font-medium text-gray-700">{profile.bio}</p>
+        <div className="space-y-10">
+          
+          {/* Header Section */}
+          {renderHeaderSection(profile, fadeUp)}
 
-            {/* Contact Info */}
-            <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:gap-6 text-sm text-gray-600">
-              <a href="mailto:b.elango93@gmail.com" className="hover:text-blue-600 transition-colors flex items-center gap-1">
-                <span className="text-lg">📧</span> b.elango93@gmail.com
-              </a>
-              <span className="flex items-center gap-1">
-                <span className="text-lg">📞</span> 9600576351
-              </span>
-              <a
-                href="https://www.linkedin.com/in/p-elango-881ba2139/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-blue-600 transition-colors flex items-center gap-1"
-              >
-                <span className="text-lg">🔗</span> LinkedIn
-              </a>
+          {/* Main Content Grid */}
+          <div className="lg:grid lg:grid-cols-3 lg:gap-12 pt-6">
+            
+            {/* Left Column (Main Content) - Experience & Projects */}
+            <div className="lg:col-span-2 space-y-10">
+              {renderExperienceSection(experience, fadeUp)}
+              <div className="w-full h-px bg-gray-200 lg:hidden"></div> {/* Separator for mobile view */}
+              {renderProjectsSection(projects, fadeUp)}
+            </div>
+
+            {/* Right Column (Side Content) - Skills & Education */}
+            <div className="lg:col-span-1 space-y-10 mt-10 lg:mt-0">
+              {renderSkillsSection(skills, fadeUp)}
+              {renderEducationSection(education, fadeUp)}
             </div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Skills Section (Unchanged) */}
-        <motion.section variants={fadeUp}>
-          <h2 className="text-2xl font-bold uppercase tracking-wider text-gray-800 pt-4 pb-2 border-b-2 border-blue-600 mb-6">
-            Skills
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {skills.map((s) => (
-              <motion.span
-                key={s.id}
-                className="px-3 py-1 bg-white text-blue-700 rounded-full font-medium text-sm border border-blue-300 hover:bg-blue-50 transition-colors"
-                whileHover={{ scale: 1.05 }}
-              >
-                {s.skill_name}
-              </motion.span>
-            ))}
-          </div>
-        </motion.section>
-
-        {/* EXPERIENCE SECTION (UPDATED with Bullet Points) */}
-        <motion.section variants={fadeUp}>
-          <h2 className="text-2xl font-bold uppercase tracking-wider text-gray-800 pt-4 pb-2 border-b-2 border-blue-600 mb-6">
-            Experience
-          </h2>
-          <div className="space-y-6">
-            {experience.map((exp) => (
-              <motion.div
-                key={exp.id}
-                className="p-6 bg-white border-l-4 border-blue-600 rounded-lg shadow-md hover:shadow-lg transition-shadow"
-                whileHover={{ x: 5 }}
-              >
-                <div className="flex justify-between items-start flex-wrap mb-1">
-                  <h3 className="text-xl font-bold text-gray-900">{exp.role}</h3>
-                  <p className="text-sm font-medium text-gray-500 whitespace-nowrap pt-1">
-                    {exp.start_date} - {exp.end_date || "Present"}
-                  </p>
-                </div>
-                <p className="text-md font-medium text-gray-700">{exp.company_name}</p>
-                
-                {/* Check if bullet_points exists (from the temporary data augmentation) */}
-                {exp.bullet_points && exp.bullet_points.length > 0 ? (
-                  <ul className="mt-3 text-gray-700 list-disc ml-5 space-y-1">
-                    {exp.bullet_points.map((point, index) => (
-                      <li key={index} className="text-sm leading-relaxed">{point}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  // Fallback to the original description if bullet_points is not used
-                  <p className="mt-3 text-gray-700 leading-relaxed">{exp.description}</p>
-                )}
-              </motion.div>
-            ))}
-          </div>
-        </motion.section>
-
-        {/* PROJECTS SECTION (UPDATED for Integrations) */}
-        <motion.section variants={fadeUp}>
-          <h2 className="text-2xl font-bold uppercase tracking-wider text-gray-800 pt-4 pb-2 border-b-2 border-blue-600 mb-6">
-            Key System Integrations & Projects
-          </h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            {projects.map((proj) => (
-              <motion.div
-                key={proj.id}
-                className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
-                whileHover={{ y: -5 }}
-              >
-                {/* Only show image if URL is valid, otherwise use padding */}
-                {proj.image_url ? (
-                    <img src={proj.image_url} alt={proj.title} className="w-full h-48 object-cover" />
-                ) : (
-                    <div className="h-4 bg-blue-100"></div> // Small placeholder for visual separation
-                )}
-                
-                <div className="p-5">
-                  <h3 className="font-bold text-xl text-blue-700 mb-2">{proj.title}</h3>
-                  
-                  {/* Check for details array (from the temporary data augmentation) */}
-                  {proj.details && proj.details.length > 0 ? (
-                    <ul className="mt-2 text-gray-600 list-disc ml-5 space-y-1">
-                      {proj.details.map((detail, index) => (
-                        <li key={index} className="text-sm">{detail}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    // Fallback to the original description
-                    <p className="text-gray-600 text-sm">{proj.description}</p>
-                  )}
-                  
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.section>
-
-        {/* Education Section (Unchanged) */}
-        <motion.section variants={fadeUp}>
-          <h2 className="text-2xl font-bold uppercase tracking-wider text-gray-800 pt-4 pb-2 border-b-2 border-blue-600 mb-6">
-            Education
-          </h2>
-          <div className="space-y-4">
-            {education.map((ed) => (
-              <motion.div
-                key={ed.id}
-                className="p-4 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
-                whileHover={{ scale: 1.01 }}
-              >
-                <h3 className="text-lg font-bold text-gray-800">{ed.degree}</h3>
-                <p className="text-gray-700">{ed.institute}</p>
-                <p className="text-sm text-gray-500 mt-1">
-                  {ed.start_year} - {ed.end_year}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </motion.section>
       </motion.div>
     </div>
   );
