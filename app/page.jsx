@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { supabase } from "../utils/supabaseClient";
+import { supabase } from "./utils/supabaseClient";
 import Link from "next/link";
 
 export default function LoginPage() {
