@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../utils/supabaseClient";
 import { motion } from "framer-motion";
 // Importing Lucide icons for a modern, consistent look
-import { Mail, Phone, Link, Briefcase, GraduationCap, Zap, Code, ListChecks, Globe } from 'lucide-react';
+import { Mail, Phone, Link, Briefcase, GraduationCap, Zap, Code, ListChecks, Globe, Eye } from 'lucide-react';
 
 // --- Component Definition ---
 
@@ -212,7 +212,19 @@ export default function PublicProfile({ params }) {
             )}
             
             <div className="p-5">
-              <h3 className="font-extrabold text-xl text-sky-700 mb-2">{proj.title}</h3>
+              <div className="flex justify-between items-start">
+                <h3 className="font-extrabold text-xl text-sky-700 mb-2">{proj.title}</h3>
+                <a 
+                  href={`/projects/${proj.id}`}
+                  className="text-gray-400 hover:text-sky-600 transition-colors"
+                  title="View Project Details"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                >
+                  <Eye className="w-5 h-5" />
+                </a>
+              </div>
               
               {proj.details && proj.details.length > 0 ? (
                 <ul className="mt-3 text-gray-600 space-y-1">
