@@ -45,6 +45,7 @@ export default function Dashboard() {
   // UI state / modals
   const [editOpen, setEditOpen] = useState(false);
   const [projectOpen, setProjectOpen] = useState(false);
+  const [projEdit, setProjEdit] = useState(null);
 
   const [expOpen, setExpOpen] = useState(false);
   const [expEdit, setExpEdit] = useState(null);
@@ -70,6 +71,7 @@ export default function Dashboard() {
   const [projDesc, setProjDesc] = useState("");
   const [projImage, setProjImage] = useState(null);
   const projFileRef = useRef();
+  const [projSkills, setProjSkills] = useState("");
 
   // experience form
   const [expRole, setExpRole] = useState("");
@@ -258,9 +260,30 @@ const uploadFile = async (file) => {
   };
 
   // ---------------------------------------------------------
-  // Projects (add already present) - adapt to user_id column
+  // Projects: add/edit
   // ---------------------------------------------------------
-  const addProject = async (e) => {
+  const openAddProject = () => {
+    setProjEdit(null);
+    setProjTitle("");
+    setProjDesc("");
+    setProjSkills("");
+    setProjImage(null);
+    if (projFileRef.current) projFileRef.current.value = "";
+    setProjectOpen(true);
+  };
+
+  const openEditProject = (p) => {
+    setProjEdit(p);
+    setProjTitle(p.title || "");
+    setProjDesc(p.description || "");
+    const tech = p.tech_stack;
+    setProjSkills(Array.isArray(tech) ? tech.join(", ") : (tech || ""));
+    setProjImage(null);
+    if (projFileRef.current) projFileRef.current.value = "";
+    setProjectOpen(true);
+  };
+
+  const saveProject = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
@@ -269,21 +292,60 @@ const uploadFile = async (file) => {
         const uploaded = await uploadFile(projImage);
         if (uploaded) image_url = uploaded;
       }
-      const { data, error } = await supabase
-        .from("projects")
-        .insert({
+      if (projEdit) {
+        const baseUpdate = {
+          title: projTitle,
+          description: projDesc,
+          tech_stack: projSkills,
+        };
+        if (image_url) baseUpdate.image_url = image_url;
+        let resp = await supabase
+          .from("projects")
+          .update(baseUpdate)
+          .eq("id", projEdit.id)
+          .select()
+          .single();
+        if (resp.error && resp.error.code === "22P02") {
+          const retryUpdate = { ...baseUpdate, tech_stack: projSkills.split(',').map(s => s.trim()).filter(Boolean) };
+          if (image_url) retryUpdate.image_url = image_url;
+          resp = await supabase
+            .from("projects")
+            .update(retryUpdate)
+            .eq("id", projEdit.id)
+            .select()
+            .single();
+        }
+        if (resp.error) throw resp.error;
+        setProjects((list) => list.map((x) => (x.id === projEdit.id ? { ...x, ...resp.data } : x)));
+      } else {
+        const baseInsert = {
           user_id: authUser.id,
           title: projTitle,
           description: projDesc,
           image_url,
-        })
-        .select()
-        .single();
-      if (error) throw error;
-      setProjects((p) => [data, ...p]);
+          tech_stack: projSkills,
+        };
+        let resp = await supabase
+          .from("projects")
+          .insert(baseInsert)
+          .select()
+          .single();
+        if (resp.error && resp.error.code === "22P02") {
+          const retryInsert = { ...baseInsert, tech_stack: projSkills.split(',').map(s => s.trim()).filter(Boolean) };
+          resp = await supabase
+            .from("projects")
+            .insert(retryInsert)
+            .select()
+            .single();
+        }
+        if (resp.error) throw resp.error;
+        setProjects((p) => [resp.data, ...p]);
+      }
       setProjTitle("");
       setProjDesc("");
       setProjImage(null);
+      setProjSkills("");
+      setProjEdit(null);
       if (projFileRef.current) projFileRef.current.value = "";
       setProjectOpen(false);
     } catch (err) {
@@ -772,7 +834,7 @@ education.forEach((e) => {
           </div>
 
           <div className="flex items-center gap-3">
-            <button onClick={() => setProjectOpen(true)} className="px-3 py-2 bg-blue-600 text-white rounded">Add Project</button>
+            <button onClick={openAddProject} className="px-3 py-2 bg-blue-600 text-white rounded">Add Project</button>
 
             <button onClick={downloadResume} className="px-3 py-2 bg-indigo-600 text-white rounded">Download Resume</button>
             <button onClick={logout} className="px-3 py-2 bg-red-500 text-white rounded">Logout</button>
@@ -857,8 +919,32 @@ education.forEach((e) => {
                 <div className="p-4">
                   <h3 className="font-semibold">{p.title}</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">{p.description}</p>
+                  {Array.isArray(p.skills) && p.skills.length > 0 ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {p.skills.map((s, idx) => (
+                        <span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full">{s}</span>
+                      ))}
+                    </div>
+                  ) : Array.isArray(p.tech_stack) && p.tech_stack.length > 0 ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {p.tech_stack.map((s, idx) => (
+                        <span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full">{s}</span>
+                      ))}
+                    </div>
+                  ) : (typeof p.tech_stack === 'string' && p.tech_stack.trim()) ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {p.tech_stack.split(',').map((s, idx) => {
+                        const label = s.trim();
+                        if (!label) return null;
+                        return (
+                          <span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full">{label}</span>
+                        );
+                      })}
+                    </div>
+                  ) : null}
                   <div className="mt-3 flex items-center justify-between">
                     <span className="text-xs text-gray-500">{new Date(p.created_at).toLocaleDateString()}</span>
+                    <button onClick={() => openEditProject(p)} className="text-xs px-2 py-1 border rounded">Edit</button>
                   </div>
                 </div>
               </motion.article>
@@ -991,16 +1077,17 @@ education.forEach((e) => {
         </div>
       )}
 
-      {/* ADD PROJECT */}
+      {/* ADD/EDIT PROJECT */}
       {projectOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <motion.div initial={{ scale: 0.98, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-xl bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
-            <h3 className="text-xl font-semibold mb-4">Add Project</h3>
-            <form onSubmit={addProject} className="space-y-3">
+            <h3 className="text-xl font-semibold mb-4">{projEdit ? "Edit Project" : "Add Project"}</h3>
+            <form onSubmit={saveProject} className="space-y-3">
               <div><label className="block text-sm">Title</label><input value={projTitle} onChange={(e) => setProjTitle(e.target.value)} className="w-full px-3 py-2 border rounded" required /></div>
               <div><label className="block text-sm">Description</label><textarea value={projDesc} onChange={(e) => setProjDesc(e.target.value)} className="w-full px-3 py-2 border rounded" rows={3} required /></div>
+              <div><label className="block text-sm">Skills used (comma separated)</label><input value={projSkills} onChange={(e) => setProjSkills(e.target.value)} className="w-full px-3 py-2 border rounded" placeholder="e.g. Next.js, Supabase, Tailwind" /></div>
               <div><label className="block text-sm">Image</label><input ref={projFileRef} type="file" accept="image/*" onChange={(e) => setProjImage(e.target.files?.[0] || null)} /></div>
-              <div className="flex justify-end gap-2 mt-4"><button type="button" onClick={() => setProjectOpen(false)} className="px-4 py-2 rounded border">Cancel</button><button type="submit" className="px-4 py-2 bg-green-600 text-white rounded">Add Project</button></div>
+              <div className="flex justify-end gap-2 mt-4"><button type="button" onClick={() => setProjectOpen(false)} className="px-4 py-2 rounded border">Cancel</button><button type="submit" className="px-4 py-2 bg-green-600 text-white rounded">{projEdit ? "Save" : "Add Project"}</button></div>
             </form>
           </motion.div>
         </div>
