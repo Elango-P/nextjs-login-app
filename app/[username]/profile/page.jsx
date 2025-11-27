@@ -314,7 +314,7 @@ export default function PublicProfile({ params }) {
   // --- Main Render ---
 
   return (
-   <div className="relative min-h-screen p-4 sm:p-8 bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-slate-900 dark:via-slate-950 dark:to-indigo-950 overflow-hidden">
+   <div className="relative min-h-screen p-4 sm:p-8    from-slate-50 via-white to-indigo-50 dark:from-slate-900 dark:via-slate-950 dark:to-indigo-950 overflow-hidden">
       <motion.svg
         aria-hidden
         viewBox="0 0 841.9 595.3"
