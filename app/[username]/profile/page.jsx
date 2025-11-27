@@ -203,6 +203,29 @@ export default function PublicProfile({ params }) {
               ) : (
                 <p className="text-gray-600 text-sm">{proj.description}</p>
               )}
+              {Array.isArray(proj.skills) && proj.skills.length > 0 ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {proj.skills.map((s, idx) => (
+                    <span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full">{s}</span>
+                  ))}
+                </div>
+              ) : Array.isArray(proj.tech_stack) && proj.tech_stack.length > 0 ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {proj.tech_stack.map((s, idx) => (
+                    <span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full">{s}</span>
+                  ))}
+                </div>
+              ) : (typeof proj.tech_stack === 'string' && proj.tech_stack.trim()) ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {proj.tech_stack.split(',').map((s, idx) => {
+                    const label = s.trim();
+                    if (!label) return null;
+                    return (
+                      <span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full">{label}</span>
+                    );
+                  })}
+                </div>
+              ) : null}
               
             </div>
           </motion.div>
