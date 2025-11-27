@@ -87,7 +87,7 @@ export default function PublicProfile({ params }) {
 
   const renderHeaderSection = (profile, fadeUp) => (
     <motion.div
-      className="flex flex-col md:flex-row items-center gap-8 border-b border-gray-200 pb-8"
+      className="relative overflow-hidden flex flex-col md:flex-row items-center gap-8 border-b border-gray-200 pb-8"
       variants={fadeUp}
     >
       {/* Profile Image */}
@@ -117,23 +117,46 @@ export default function PublicProfile({ params }) {
             <Link className="w-4 h-4 text-sky-500" /> LinkedIn Profile
           </a>
           <a
-  href="https://elango-p.vercel.app/elango/profile"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="hover:text-sky-600 transition-colors flex items-center gap-2 font-medium"
->
-  {/* The Link icon is often used for external links, but if you want Globe for a website: */}
-  <Globe className="w-4 h-4 text-sky-500" />
-  {/* The text comes immediately after the icon */}
-  Website
-</a>
+            href="https://elango-p.vercel.app/elango/profile"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-sky-600 transition-colors flex items-center gap-2 font-medium"
+          >
+            <Globe className="w-4 h-4 text-sky-500" />
+            Website
+          </a>
         </div>
+        <div className="mt-5 flex flex-wrap justify-center md:justify-start gap-2">
+          <span className="text-xs px-3 py-1 rounded-full bg-green-50 text-green-700 border border-green-200">Node.js</span>
+          <span className="text-xs px-3 py-1 rounded-full bg-gray-900 text-white border border-gray-800">Next.js</span>
+          <span className="text-xs px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">CSS</span>
+          <span className="text-xs px-3 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-200">HTML</span>
+          <span className="text-xs px-3 py-1 rounded-full bg-violet-50 text-violet-700 border border-violet-200">Bootstrap</span>
+          <span className="text-xs px-3 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">Tailwind CSS</span>
+        </div>
+
+        {/* Watermark: faint rotating tech stack badges (like React symbol) */}
+        <motion.div
+          aria-hidden
+          className="pointer-events-none select-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+          animate={{ rotate: [0, 360] }}
+          transition={{ duration: 220, repeat: Infinity, ease: "linear" }}
+        >
+          <div className="flex flex-wrap justify-center gap-3 opacity-[0.06] dark:opacity-[0.05]">
+            <span className="text-xs px-3 py-1 rounded-full bg-green-500/10 text-green-700/80 border border-green-400/30">Node.js</span>
+            <span className="text-xs px-3 py-1 rounded-full bg-gray-900/10 text-gray-900/80 dark:text-white/80 border border-gray-800/30">Next.js</span>
+            <span className="text-xs px-3 py-1 rounded-full bg-blue-500/10 text-blue-700/80 border border-blue-400/30">CSS</span>
+            <span className="text-xs px-3 py-1 rounded-full bg-orange-500/10 text-orange-700/80 border border-orange-400/30">HTML</span>
+            <span className="text-xs px-3 py-1 rounded-full bg-violet-500/10 text-violet-700/80 border border-violet-400/30">Bootstrap</span>
+            <span className="text-xs px-3 py-1 rounded-full bg-sky-500/10 text-sky-700/80 border border-sky-400/30">Tailwind CSS</span>
+          </div>
+        </motion.div>
       </div>
     </motion.div>
   );
 
   const renderExperienceSection = (experience, fadeUp) => (
-    <motion.section variants={fadeUp}>
+    <motion.section variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
       <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-gray-800 border-b-2 border-sky-400 pb-3 mb-6">
         <Briefcase className="w-6 h-6 text-sky-500" /> Experience
       </h2>
@@ -171,7 +194,7 @@ export default function PublicProfile({ params }) {
   );
 
   const renderProjectsSection = (projects, fadeUp) => (
-    <motion.section variants={fadeUp}>
+    <motion.section variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
       <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-gray-800 border-b-2 border-sky-400 pb-3 mb-6">
         <Code className="w-6 h-6 text-sky-500" /> Projects
       </h2>
@@ -206,13 +229,13 @@ export default function PublicProfile({ params }) {
               {Array.isArray(proj.skills) && proj.skills.length > 0 ? (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {proj.skills.map((s, idx) => (
-                    <span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full">{s}</span>
+                    <motion.span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>{s}</motion.span>
                   ))}
                 </div>
               ) : Array.isArray(proj.tech_stack) && proj.tech_stack.length > 0 ? (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {proj.tech_stack.map((s, idx) => (
-                    <span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full">{s}</span>
+                    <motion.span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>{s}</motion.span>
                   ))}
                 </div>
               ) : (typeof proj.tech_stack === 'string' && proj.tech_stack.trim()) ? (
@@ -221,7 +244,7 @@ export default function PublicProfile({ params }) {
                     const label = s.trim();
                     if (!label) return null;
                     return (
-                      <span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full">{label}</span>
+                      <motion.span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>{label}</motion.span>
                     );
                   })}
                 </div>
@@ -235,7 +258,7 @@ export default function PublicProfile({ params }) {
   );
 
   const renderSkillsSection = (skills, fadeUp) => (
-    <motion.section variants={fadeUp} className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+    <motion.section variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
       <h2 className="flex items-center gap-3 text-2xl font-bold tracking-tight text-gray-800 border-b border-sky-400 pb-3 mb-5">
         <Zap className="w-5 h-5 text-sky-500" /> Core Skills
       </h2>
@@ -254,7 +277,7 @@ export default function PublicProfile({ params }) {
   );
 
   const renderEducationSection = (education, fadeUp) => (
-    <motion.section variants={fadeUp} className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+    <motion.section variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
       <h2 className="flex items-center gap-3 text-2xl font-bold tracking-tight text-gray-800 border-b border-sky-400 pb-3 mb-5">
         <GraduationCap className="w-5 h-5 text-sky-500" /> Education
       </h2>
@@ -279,7 +302,62 @@ export default function PublicProfile({ params }) {
   // --- Main Render ---
 
   return (
-   <div className="min-h-screen bg-gray-100 p-4 sm:p-8">
+   <div className="relative min-h-screen p-4 sm:p-8 bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-slate-900 dark:via-slate-950 dark:to-indigo-950 overflow-hidden">
+      <motion.svg
+        aria-hidden
+        viewBox="0 0 841.9 595.3"
+        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[720px] h-[720px] opacity-[0.06] dark:opacity-[0.05]"
+        animate={{ rotate: [0, 360] }}
+        transition={{ duration: 240, repeat: Infinity, ease: "linear" }}
+      >
+        <defs>
+          <linearGradient id="reactGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#60a5fa" />
+            <stop offset="100%" stopColor="#22d3ee" />
+          </linearGradient>
+        </defs>
+        <g fill="none" stroke="url(#reactGrad)" strokeWidth="10">
+          <ellipse cx="420.9" cy="296.5" rx="190" ry="74" />
+          <ellipse cx="420.9" cy="296.5" rx="190" ry="74" transform="rotate(60 420.9 296.5)" />
+          <ellipse cx="420.9" cy="296.5" rx="190" ry="74" transform="rotate(120 420.9 296.5)" />
+        </g>
+        <circle cx="420.9" cy="296.5" r="18" fill="url(#reactGrad)" />
+      </motion.svg>
+      {/* Decorative gradient accents for professional look */}
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute -top-24 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-sky-300 via-indigo-300 to-purple-300 opacity-30 blur-3xl dark:opacity-20"
+        animate={{ y: [0, -15, 0], rotate: [0, 8, 0] }}
+        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-24 -right-20 h-80 w-80 rounded-full bg-gradient-to-br from-rose-300 via-amber-300 to-emerald-300 opacity-30 blur-3xl dark:opacity-20"
+        animate={{ y: [0, 18, 0], rotate: [0, -10, 0] }}
+        transition={{ duration: 16, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
+      />
+
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute top-1/3 -left-24 h-56 w-56 rounded-full bg-gradient-to-br from-emerald-300 via-teal-300 to-cyan-300 opacity-25 blur-3xl dark:opacity-15"
+        animate={{ scale: [1, 1.08, 1], opacity: [0.25, 0.35, 0.25] }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
+      />
+
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute top-1/4 -right-20 h-64 w-64 rounded-full bg-gradient-to-br from-fuchsia-300 via-pink-300 to-rose-300 opacity-20 blur-3xl dark:opacity-15"
+        animate={{ scale: [1, 1.06, 1], y: [0, -12, 0] }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+      />
+
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.06),transparent_60%)]"
+        animate={{ opacity: [0.25, 0.4, 0.25] }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+      />
+
       <motion.div
         className="max-w-7xl mx-auto bg-white shadow-2xl rounded-2xl p-6 md:p-12 border border-gray-200"
         initial="hidden"
