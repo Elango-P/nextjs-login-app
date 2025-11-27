@@ -18,6 +18,9 @@ import {
   Legend,
 } from "chart.js";
 import autoTable from "jspdf-autotable";
+import ThemeSelector from "../../components/ThemeSelector";
+import ParticlesThemeSelector from "../../components/ParticlesThemeSelector";
+import { useTheme } from "../../context/ThemeContext";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -30,6 +33,7 @@ ChartJS.register(
 );
 
 export default function Dashboard() {
+  const { changeParticlesTheme } = useTheme();
   const router = useRouter();
 
   // auth + main entities
@@ -824,13 +828,14 @@ education.forEach((e) => {
   // UI
   // ---------------------------------------------------------
   return (
-    <div className="min-h-screen p-6 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
+       <div className="min-h-screen p-6  dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
+
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Hello, {profile.full_name || authUser.email}</h1>
-            <p className="text-sm text-gray-600 dark:text-gray-300">Full-Stack Developer | Node.js, React.js & React Native | Retail Domain | Data Visualization with Chart.js & Highcharts | Slack & Email Integration for Seamless Communication</p>
+            <h1 className="text-2xl text-white font-bold">Hello, {profile.full_name || authUser.email}</h1>
+            <p className="text-sm text-white">Full-Stack Developer | Node.js, React.js & React Native | Retail Domain | Data Visualization with Chart.js & Highcharts | Slack & Email Integration for Seamless Communication</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -838,6 +843,8 @@ education.forEach((e) => {
 
             <button onClick={downloadResume} className="px-3 py-2 bg-indigo-600 text-white rounded">Download Resume</button>
             <button onClick={logout} className="px-3 py-2 bg-red-500 text-white rounded">Logout</button>
+            <ParticlesThemeSelector onThemeChange={changeParticlesTheme} />
+            {/* <ThemeSelector /> */}
           </div>
         </div>
 
