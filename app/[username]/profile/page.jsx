@@ -5,10 +5,17 @@ import { supabase } from "../../utils/supabaseClient";
 import { motion } from "framer-motion";
 // Importing Lucide icons for a modern, consistent look
 import { Mail, Phone, Link, Briefcase, GraduationCap, Zap, Code, ListChecks, Globe, Eye } from 'lucide-react';
-import Lottie from "lottie-react";
-import loaderAnimation from "../../../public/loader.json";
+// import Lottie from "lottie-react"; // Lottie import removed
+// import loaderAnimation from "../../../public/loader.json"; // Lottie import removed
 
 // --- Component Definition ---
+
+// 1. New Spinner Component
+const Spinner = ({ size = 8, color = 'sky' }) => (
+    <div
+        className={`w-${size} h-${size} border-4 border-t-4 border-t-${color}-500 border-gray-200 rounded-full animate-spin`}
+    ></div>
+);
 
 export default function PublicProfile({ params }) {
   const [profile, setProfile] = useState(null);
@@ -43,6 +50,7 @@ const resolvedParams = React.use(params);
     setProfile(userData);
     const userId = userData.id;
 
+    // Fetching all data in parallel
     const [{ data: projs }, { data: exps }, { data: eds }, { data: sks }] =
       await Promise.all([
         supabase.from("projects").select("*").eq("user_id", userId),
@@ -77,250 +85,270 @@ const resolvedParams = React.use(params);
   }
 
   // --- UI Logic ---
-  if (loading)
-    return (
-       <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
-      <div className="flex flex-col items-center gap-5">
-        <Lottie
-          animationData={loaderAnimation}
-          loop={true}
-          style={{ width: 300, height: 300 }}
-        />
-      </div>
-    </div>
-    );
-  if (!profile) return <p className="p-8 text-center text-red-600">User not found</p>;
+  if (!profile && !loading) return <p className="p-8 text-center text-red-600">User not found</p>;
 
   const fadeUp = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 0 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
 
-  // --- Helper Functions for Section Rendering ---
+  // 2. Updated LoaderPlaceholder Component
+  const LoaderPlaceholder = ({ height = 150, spinnerSize = 12 }) => (
+      <div className="flex items-center justify-center w-full bg-gray-50 rounded-lg" style={{ minHeight: height }}>
+          <Spinner size={spinnerSize} color="sky" />
+      </div>
+  );
 
-  const renderHeaderSection = (profile, fadeUp) => (
+  const renderHeaderSection = (profile, fadeUp, loading) => (
     <motion.div
       className="relative overflow-hidden flex flex-col md:flex-row items-center gap-8 border-b border-gray-200 pb-8"
       variants={fadeUp}
+      initial="hidden" 
+      animate="visible"
     >
-      {/* Profile Image */}
-      <img
-        src={"https://elangomedia.s3.ap-southeast-2.amazonaws.com/product/180-product-4794-20251125201841.png"}
-        alt="Profile photo"
-        className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover ring-2 ring-sky-500 ring-offset-4 shadow-xl"
-      />
-      <div className="text-center md:text-left">
-        <h1 className="text-4xl font-extrabold text-gray-900 tracking-tighter leading-none">Elango Ponnusamy</h1>
-        <p className="mt-2 text-2xl font-light text-gray-600">{profile.bio}</p>
+      {loading ? (
+           <div className="flex w-full items-center justify-center min-h-[160px] md:min-h-[200px]">
+               <Spinner size={16} color="sky" />
+           </div>
+      ) : (
+          <>
+          {/* Profile Image */}
+          <img
+            src={"https://elangomedia.s3.ap-southeast-2.amazonaws.com/product/180-product-4794-20251125201841.png"}
+            alt="Profile photo"
+            className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover  shadow-xl"
+          />
+          <div className="text-center md:text-left">
+            {/* MODIFICATION HERE: Changed text-4xl to text-3xl for mobile, and added md:text-4xl, leading-snug and md:leading-none */}
+            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tighter leading-snug md:leading-none">{"Elango Ponnusamy"}</h1>
+            <p className="mt-2 text-2xl font-light text-gray-600">{profile.bio}</p>
 
-        {/* Contact Info with Lucide Icons */}
-        <div className="mt-6 flex flex-wrap justify-center md:justify-start gap-x-8 gap-y-3 text-sm text-gray-600">
-          <a href="mailto:b.elango93@gmail.com" className="hover:text-sky-600 transition-colors flex items-center gap-2 font-medium">
-            <Mail className="w-4 h-4 text-sky-500" /> b.elango93@gmail.com
-          </a>
-          <span className="flex items-center gap-2 font-medium">
-            <Phone className="w-4 h-4 text-sky-500" /> 9600576351
-          </span>
-          <a
-            href="https://www.linkedin.com/in/p-elango-881ba2139/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-sky-600 transition-colors flex items-center gap-2 font-medium"
-          >
-            <Link className="w-4 h-4 text-sky-500" /> LinkedIn Profile
-          </a>
-          <a
-            href="https://elango-p.vercel.app/elango/profile"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-sky-600 transition-colors flex items-center gap-2 font-medium"
-          >
-            <Globe className="w-4 h-4 text-sky-500" />
-            Website
-          </a>
-        </div>
-        <div className="mt-5 flex flex-wrap justify-center md:justify-start gap-2">
-          <span className="text-xs px-3 py-1 rounded-full bg-green-50 text-green-700 border border-green-200">Node.js</span>
-          <span className="text-xs px-3 py-1 rounded-full bg-gray-900 text-white border border-gray-800">Next.js</span>
-          <span className="text-xs px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">CSS</span>
-          <span className="text-xs px-3 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-200">HTML</span>
-          <span className="text-xs px-3 py-1 rounded-full bg-violet-50 text-violet-700 border border-violet-200">Bootstrap</span>
-          <span className="text-xs px-3 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">Tailwind CSS</span>
-        </div>
-
-        {/* Watermark: faint rotating tech stack badges (like React symbol) */}
-        <motion.div
-          aria-hidden
-          className="pointer-events-none select-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-          animate={{ rotate: [0, 360] }}
-          transition={{ duration: 220, repeat: Infinity, ease: "linear" }}
-        >
-          <div className="flex flex-wrap justify-center gap-3 opacity-[0.06] dark:opacity-[0.05]">
-            <span className="text-xs px-3 py-1 rounded-full bg-green-500/10 text-green-700/80 border border-green-400/30">Node.js</span>
-            <span className="text-xs px-3 py-1 rounded-full bg-gray-900/10 text-gray-900/80 dark:text-white/80 border border-gray-800/30">Next.js</span>
-            <span className="text-xs px-3 py-1 rounded-full bg-blue-500/10 text-blue-700/80 border border-blue-400/30">CSS</span>
-            <span className="text-xs px-3 py-1 rounded-full bg-orange-500/10 text-orange-700/80 border border-orange-400/30">HTML</span>
-            <span className="text-xs px-3 py-1 rounded-full bg-violet-500/10 text-violet-700/80 border border-violet-400/30">Bootstrap</span>
-            <span className="text-xs px-3 py-1 rounded-full bg-sky-500/10 text-sky-700/80 border border-sky-400/30">Tailwind CSS</span>
+            {/* Contact Info with Lucide Icons */}
+            <div className="mt-6 flex flex-wrap justify-center md:justify-start gap-x-8 gap-y-3 text-sm text-gray-600">
+              <a href="mailto:b.elango93@gmail.com" className="hover:text-sky-600 transition-colors flex items-center gap-2 font-medium">
+                <Mail className="w-4 h-4 text-sky-500" /> b.elango93@gmail.com
+              </a>
+              <span className="flex items-center gap-2 font-medium">
+                <Phone className="w-4 h-4 text-sky-500" /> 9600576351
+              </span>
+              <a
+                href="https://www.linkedin.com/in/p-elango-881ba2139/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-sky-600 transition-colors flex items-center gap-2 font-medium"
+              >
+                <Link className="w-4 h-4 text-sky-500" /> LinkedIn Profile
+              </a>
+              <a
+                href="https://elango-p.vercel.app/elango/profile"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-sky-600 transition-colors flex items-center gap-2 font-medium"
+              >
+                <Globe className="w-4 h-4 text-sky-500" />
+                Website
+              </a>
+            </div>
+            <div className="mt-5 flex flex-wrap justify-center md:justify-start gap-2">
+              <span className="text-xs px-3 py-1 rounded-full bg-green-50 text-green-700 border border-green-200">Node.js</span>
+              <span className="text-xs px-3 py-1 rounded-full bg-gray-900 text-white border border-gray-800">Next.js</span>
+              <span className="text-xs px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">CSS</span>
+              <span className="text-xs px-3 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-200">HTML</span>
+              <span className="text-xs px-3 py-1 rounded-full bg-violet-50 text-violet-700 border border-violet-200">Bootstrap</span>
+              <span className="text-xs px-3 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">Tailwind CSS</span>
+            </div>
+            
+            {/* Watermark: faint rotating tech stack badges (like React symbol) */}
+            <motion.div
+              aria-hidden
+              className="pointer-events-none select-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 220, repeat: Infinity, ease: "linear" }}
+            >
+              <div className="flex flex-wrap justify-center gap-3 opacity-[0.06] dark:opacity-[0.05]">
+                <span className="text-xs px-3 py-1 rounded-full bg-green-500/10 text-green-700/80 border border-green-400/30">Node.js</span>
+                <span className="text-xs px-3 py-1 rounded-full bg-gray-900/10 text-gray-900/80 dark:text-white/80 border border-gray-800/30">Next.js</span>
+                <span className="text-xs px-3 py-1 rounded-full bg-blue-500/10 text-blue-700/80 border border-blue-400/30">CSS</span>
+                <span className="text-xs px-3 py-1 rounded-full bg-orange-500/10 text-orange-700/80 border border-orange-400/30">HTML</span>
+                <span className="text-xs px-3 py-1 rounded-full bg-violet-500/10 text-violet-700/80 border border-violet-400/30">Bootstrap</span>
+                <span className="text-xs px-3 py-1 rounded-full bg-sky-500/10 text-sky-700/80 border border-sky-400/30">Tailwind CSS</span>
+              </div>
+            </motion.div>
           </div>
-        </motion.div>
-      </div>
+          </>
+      )}
     </motion.div>
   );
 
-  const renderExperienceSection = (experience, fadeUp) => (
+  const renderExperienceSection = (experience, fadeUp, loading) => (
     <motion.section variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
       <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-gray-800 border-b-2 border-sky-400 pb-3 mb-6">
         <Briefcase className="w-6 h-6 text-sky-500" /> Experience
       </h2>
-      <div className="space-y-8">
-        {experience.map((exp) => (
-          <motion.div
-            key={exp.id}
-            className="p-6 bg-white border-l-4 border-sky-500 shadow-md rounded-lg transition-shadow duration-300 hover:shadow-xl"
-            whileHover={{ x: 3 }}
-          >
-            <div className="flex justify-between items-start flex-wrap mb-1">
-              <h3 className="text-xl font-extrabold text-gray-900 leading-tight">{exp.role}</h3>
-              <p className="text-sm font-semibold text-gray-500 whitespace-nowrap pt-1">
-                {exp.start_date} - {exp.end_date || "Present"}
-              </p>
-            </div>
-            <p className="text-lg font-medium text-sky-600">{exp.company_name}</p>
-            
-            {exp.bullet_points && exp.bullet_points.length > 0 ? (
-              <ul className="mt-4 text-gray-700 space-y-2">
-                {exp.bullet_points.map((point, index) => (
-                  <li key={index} className="text-base flex items-start gap-2">
-                    <ListChecks className="w-4 h-4 mt-1 text-green-500 flex-shrink-0" />
-                    <span className="leading-relaxed">{point}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-3 text-gray-700 leading-relaxed">{exp.description}</p>
-            )}
-          </motion.div>
-        ))}
-      </div>
+      {loading ? (
+          <LoaderPlaceholder height={200} />
+      ) : (
+          <div className="space-y-8">
+            {experience.map((exp) => (
+              <motion.div
+                key={exp.id}
+                className="p-6 bg-white border-l-4 border-sky-500 shadow-md rounded-lg transition-shadow duration-300 hover:shadow-xl"
+                whileHover={{ x: 3 }}
+              >
+                <div className="flex justify-between items-start flex-wrap mb-1">
+                  <h3 className="text-xl font-extrabold text-gray-900 leading-tight">{exp.role}</h3>
+                  <p className="text-sm font-semibold text-gray-500 whitespace-nowrap pt-1">
+                    {exp.start_date} - {exp.end_date || "Present"}
+                  </p>
+                </div>
+                <p className="text-lg font-medium text-sky-600">{exp.company_name}</p>
+                
+                {exp.bullet_points && exp.bullet_points.length > 0 ? (
+                  <ul className="mt-4 text-gray-700 space-y-2">
+                    {exp.bullet_points.map((point, index) => (
+                      <li key={index} className="text-base flex items-start gap-2">
+                        <ListChecks className="w-4 h-4 mt-1 text-green-500 flex-shrink-0" />
+                        <span className="leading-relaxed">{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-3 text-gray-700 leading-relaxed">{exp.description}</p>
+                )}
+              </motion.div>
+            ))}
+          </div>
+      )}
     </motion.section>
   );
 
-  const renderProjectsSection = (projects, fadeUp) => (
+  const renderProjectsSection = (projects, fadeUp, loading) => (
     <motion.section variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
       <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-gray-800 border-b-2 border-sky-400 pb-3 mb-6">
         <Code className="w-6 h-6 text-sky-500" /> Projects
       </h2>
-      <div className="grid md:grid-cols-2 gap-8">
-        {projects.map((proj) => (
-          <motion.div
-            key={proj.id}
-            className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl hover:border-sky-300"
-            whileHover={{ y: -4 }}
-          >
-            {proj.image_url ? (
-                <img src={proj.image_url} alt={proj.title} className="w-full h-40 object-cover border-b border-gray-200" />
-            ) : (
-                <div className="h-2 bg-sky-500"></div> 
-            )}
-            
-            <div className="p-5">
-              <div className="flex justify-between items-start">
-                <h3 className="font-extrabold text-xl text-sky-700 mb-2">{proj.title}</h3>
-                <a 
-                  href={`/projects/${proj.id}`}
-                  className="text-gray-400 hover:text-sky-600 transition-colors"
-                  title="View Project Details"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                >
-                  <Eye className="w-5 h-5" />
-                </a>
-              </div>
-              
-              {proj.details && proj.details.length > 0 ? (
-                <ul className="mt-3 text-gray-600 space-y-1">
-                  {proj.details.map((detail, index) => (
-                    <li key={index} className="text-sm flex items-start gap-2">
-                      <span className="text-sky-500 font-bold flex-shrink-0">•</span>
-                      {detail}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-gray-600 text-sm">{proj.description}</p>
-              )}
-              {Array.isArray(proj.skills) && proj.skills.length > 0 ? (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {proj.skills.map((s, idx) => (
-                    <motion.span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>{s}</motion.span>
-                  ))}
+      {loading ? (
+          <LoaderPlaceholder height={300} />
+      ) : (
+          <div className="grid md:grid-cols-2 gap-8">
+            {projects.map((proj) => (
+              <motion.div
+                key={proj.id}
+                className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl hover:border-sky-300"
+                whileHover={{ y: -4 }}
+              >
+                {proj.image_url ? (
+                    <img src={proj.image_url} alt={proj.title} className="w-full h-40 object-cover border-b border-gray-200" />
+                ) : (
+                    <div className="h-2 bg-sky-500"></div> 
+                )}
+                
+                <div className="p-5">
+                  <div className="flex justify-between items-start">
+                    <h3 className="font-extrabold text-xl text-sky-700 mb-2">{proj.title}</h3>
+                    <a 
+                      href={`/projects/${proj.id}`}
+                      className="text-gray-400 hover:text-sky-600 transition-colors"
+                      title="View Project Details"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                    >
+                      <Eye className="w-5 h-5" />
+                    </a>
+                  </div>
+                  
+                  {proj.details && proj.details.length > 0 ? (
+                    <ul className="mt-3 text-gray-600 space-y-1">
+                      {proj.details.map((detail, index) => (
+                        <li key={index} className="text-sm flex items-start gap-2">
+                          <span className="text-sky-500 font-bold flex-shrink-0">•</span>
+                          {detail}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-gray-600 text-sm">{proj.description}</p>
+                  )}
+                  {Array.isArray(proj.skills) && proj.skills.length > 0 ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {proj.skills.map((s, idx) => (
+                        <motion.span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>{s}</motion.span>
+                      ))}
+                    </div>
+                  ) : Array.isArray(proj.tech_stack) && proj.tech_stack.length > 0 ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {proj.tech_stack.map((s, idx) => (
+                        <motion.span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>{s}</motion.span>
+                      ))}
+                    </div>
+                  ) : (typeof proj.tech_stack === 'string' && proj.tech_stack.trim()) ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {proj.tech_stack.split(',').map((s, idx) => {
+                        const label = s.trim();
+                        if (!label) return null;
+                        return (
+                          <motion.span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>{label}</motion.span>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                  
                 </div>
-              ) : Array.isArray(proj.tech_stack) && proj.tech_stack.length > 0 ? (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {proj.tech_stack.map((s, idx) => (
-                    <motion.span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>{s}</motion.span>
-                  ))}
-                </div>
-              ) : (typeof proj.tech_stack === 'string' && proj.tech_stack.trim()) ? (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {proj.tech_stack.split(',').map((s, idx) => {
-                    const label = s.trim();
-                    if (!label) return null;
-                    return (
-                      <motion.span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>{label}</motion.span>
-                    );
-                  })}
-                </div>
-              ) : null}
-              
-            </div>
-          </motion.div>
-        ))}
-      </div>
+              </motion.div>
+            ))}
+          </div>
+      )}
     </motion.section>
   );
 
-  const renderSkillsSection = (skills, fadeUp) => (
+  const renderSkillsSection = (skills, fadeUp, loading) => (
     <motion.section variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
       <h2 className="flex items-center gap-3 text-2xl font-bold tracking-tight text-gray-800 border-b border-sky-400 pb-3 mb-5">
         <Zap className="w-5 h-5 text-sky-500" /> Core Skills
       </h2>
-      <div className="flex flex-wrap gap-3">
-        {skills.map((s) => (
-          <motion.span
-            key={s.id}
-            className="px-3 py-1 bg-sky-50 text-sky-700 rounded-full font-semibold text-sm border border-sky-200 shadow-sm transition-colors"
-            whileHover={{ scale: 1.05, backgroundColor: '#e0f2fe' }}
-          >
-            {s.skill_name}
-          </motion.span>
-        ))}
-      </div>
+      {loading ? (
+          <LoaderPlaceholder height={100} spinnerSize={8} />
+      ) : (
+          <div className="flex flex-wrap gap-3">
+            {skills.map((s) => (
+              <motion.span
+                key={s.id}
+                className="px-3 py-1 bg-sky-50 text-sky-700 rounded-full font-semibold text-sm border border-sky-200 shadow-sm transition-colors"
+                whileHover={{ scale: 1.05, backgroundColor: '#e0f2fe' }}
+              >
+                {s.skill_name}
+              </motion.span>
+            ))}
+          </div>
+      )}
     </motion.section>
   );
 
-  const renderEducationSection = (education, fadeUp) => (
+  const renderEducationSection = (education, fadeUp, loading) => (
     <motion.section variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
       <h2 className="flex items-center gap-3 text-2xl font-bold tracking-tight text-gray-800 border-b border-sky-400 pb-3 mb-5">
         <GraduationCap className="w-5 h-5 text-sky-500" /> Education
       </h2>
-      <div className="space-y-4">
-        {education.map((ed) => (
-          <motion.div
-            key={ed.id}
-            className="p-3 bg-gray-50 rounded-lg border border-gray-200 transition-shadow hover:shadow-md"
-            whileHover={{ scale: 1.02 }}
-          >
-            <h3 className="text-lg font-bold text-gray-800 leading-tight">{ed.degree}</h3>
-            <p className="text-gray-700 text-sm font-medium">{ed.institute}</p>
-            <p className="text-xs text-gray-500 mt-1">
-              {ed.start_year} - {ed.end_year}
-            </p>
-          </motion.div>
-        ))}
-      </div>
+      {loading ? (
+          <LoaderPlaceholder height={120} spinnerSize={8} />
+      ) : (
+          <div className="space-y-4">
+            {education.map((ed) => (
+              <motion.div
+                key={ed.id}
+                className="p-3 bg-gray-50 rounded-lg border border-gray-200 transition-shadow hover:shadow-md"
+                whileHover={{ scale: 1.02 }}
+              >
+                <h3 className="text-lg font-bold text-gray-800 leading-tight">{ed.degree}</h3>
+                <p className="text-gray-700 text-sm font-medium">{ed.institute}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {ed.start_year} - {ed.end_year}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+      )}
     </motion.section>
   );
 
@@ -391,25 +419,25 @@ const resolvedParams = React.use(params);
           visible: { transition: { staggerChildren: 0.15 } },
         }}
       >
-        <div className="space-y-10">
+        <div className="space-y-8 md:space-y-10">
           
           {/* Header Section */}
-          {renderHeaderSection(profile, fadeUp)}
+          {renderHeaderSection(profile, fadeUp, loading)}
 
           {/* Main Content Grid */}
-          <div className="lg:grid lg:grid-cols-3 lg:gap-12 pt-6">
+          <div className="lg:grid lg:grid-cols-3 lg:gap-12 pt-4 lg:pt-6">
             
             {/* Left Column (Main Content) - Experience & Projects */}
             <div className="lg:col-span-2 space-y-10">
-              {renderExperienceSection(experience, fadeUp)}
+              {renderExperienceSection(experience, fadeUp, loading)}
               <div className="w-full h-px bg-gray-200 lg:hidden"></div> {/* Separator for mobile view */}
-              {renderProjectsSection(projects, fadeUp)}
+              {renderProjectsSection(projects, fadeUp, loading)}
             </div>
 
             {/* Right Column (Side Content) - Skills & Education */}
             <div className="lg:col-span-1 space-y-10 mt-10 lg:mt-0">
-              {renderSkillsSection(skills, fadeUp)}
-              {renderEducationSection(education, fadeUp)}
+              {renderSkillsSection(skills, fadeUp, loading)}
+              {renderEducationSection(education, fadeUp, loading)}
             </div>
           </div>
         </div>
