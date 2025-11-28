@@ -5,8 +5,18 @@ import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
 import { useTheme } from "../context/ThemeContext";
 
+const DEFAULT_THEME = {
+  background: { color: "#0f172a" },
+  particles: { 
+    number: { value: 80 }, 
+    color: { value: "#ffffff" }, 
+    move: { enable: true, speed: 1 } 
+  }
+};
+
 export default function ParticlesBackground() {
-  const { particlesTheme } = useTheme();
+  const theme = useTheme();
+  const particlesTheme = theme?.particlesTheme || 'default';
 
   const particlesInit = useCallback(async (engine) => {
     await loadSlim(engine);
@@ -145,7 +155,12 @@ export default function ParticlesBackground() {
     }
   };
 
-  const selected = THEMES[particlesTheme] || THEMES.default;
+  if (!theme) {
+    // Return null or a loading state if theme is not available yet
+    return null;
+  }
+
+  const selected = THEMES[particlesTheme] || THEMES.default || DEFAULT_THEME;
 
   return <Particles id="tsparticles" init={particlesInit} options={selected} />;
 }
