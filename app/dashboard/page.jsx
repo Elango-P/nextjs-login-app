@@ -857,57 +857,119 @@ education.forEach((e) => {
   return (
        <div className="min-h-screen p-6  dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
 
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6 px-4 sm:px-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl text-white font-bold">Hello, {profile.full_name || authUser.email}</h1>
-            <p className="text-sm text-white">Full-Stack Developer | Node.js, React.js & React Native | Retail Domain | Data Visualization with Chart.js & Highcharts | Slack & Email Integration for Seamless Communication</p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="text-center sm:text-left">
+            <h1 className="text-xl sm:text-2xl text-white font-bold">Hello, {profile.full_name || authUser.email}</h1>
+            <p className="text-xs sm:text-sm text-gray-200 mt-1">Full-Stack Developer | Node.js, React.js & React Native | Retail Domain | Data Visualization with Chart.js & Highcharts</p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button onClick={openAddProject} className="px-3 py-2 bg-blue-600 text-white rounded">Add Project</button>
-
-            <button onClick={downloadResume} className="px-3 py-2 bg-indigo-600 text-white rounded">Download Resume</button>
-            <button onClick={viewProfile} className="px-3 py-2 bg-green-600 text-white rounded">View Profile</button>
-            <button onClick={logout} className="px-3 py-2 bg-red-500 text-white rounded">Logout</button>
-            <ParticlesThemeSelector onThemeChange={changeParticlesTheme} />
-            {/* <ThemeSelector /> */}
+          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2">
+            <button onClick={openAddProject} className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm bg-blue-600 text-white rounded whitespace-nowrap">
+              Add Project
+            </button>
+            <button onClick={downloadResume} className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm bg-indigo-600 text-white rounded whitespace-nowrap">
+              Download CV
+            </button>
+            <button onClick={viewProfile} className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm bg-green-600 text-white rounded whitespace-nowrap">
+              View Profile
+            </button>
+            <button onClick={logout} className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm bg-red-500 text-white rounded whitespace-nowrap">
+              Logout
+            </button>
+            <div className="hidden sm:block">
+              <ParticlesThemeSelector onThemeChange={changeParticlesTheme} />
+            </div>
           </div>
         </div>
 
         {/* Top grid: profile + charts */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Profile card */}
-          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="col-span-1 bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
-            <div className="flex flex-col items-center">
+          <motion.div 
+            initial={{ opacity: 0, y: 6 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            className="col-span-1 bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow"
+          >
+              <div className="flex flex-col items-center">
               <img
                 src={profile.profile_photo || profile.photo_url || "https://elangomedia.s3.ap-southeast-2.amazonaws.com/product/180-product-4794-20251125201841.png"}
                 alt="avatar"
-                className="w-32 h-32 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
+                className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
               />
-              <h2 className="mt-4 text-xl font-semibold">{profile.full_name || "P Elango"}</h2>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">{profile.bio || "Full-Stack Developer focusing on retail & data visualization."}</p>
+              <h2 className="mt-3 sm:mt-4 text-lg sm:text-xl font-semibold text-center">{profile.full_name || "P Elango"}</h2>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-1 sm:mt-2 text-center">
+                {profile.bio || "Full-Stack Developer focusing on retail & data visualization."}
+              </p>
 
-              <div className="mt-4 flex flex-wrap gap-2">
+              <div className="mt-3 sm:mt-4 flex flex-wrap justify-center gap-1.5 sm:gap-2">
                 {skills.length ? skills.map((s) => (
-                  <span key={s.id} className="text-sm px-3 py-1 bg-blue-50 text-blue-700 rounded-full">{s.skill_name}</span>
-                )) : (profile.skills || []).length ? (profile.skills || []).map((s) => (
-                  <span key={s} className="text-sm px-3 py-1 bg-blue-50 text-blue-700 rounded-full">{s}</span>
-                )) : <span className="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded-full">No skills yet</span>}
+                  <span key={s.id} className="text-xs sm:text-sm px-2 sm:px-3 py-0.5 sm:py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
+                    {s.skill_name}
+                  </span>
+                )) : (profile.skills || []).length ? (profile.skills || []).map((s, i) => (
+                  <span key={i} className="text-xs sm:text-sm px-2 sm:px-3 py-0.5 sm:py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
+                    {s}
+                  </span>
+                )) : (
+                  <span className="text-xs sm:text-sm px-2 sm:px-3 py-0.5 sm:py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-full">
+                    No skills yet
+                  </span>
+                )}
               </div>
             </div>
           </motion.div>
 
           {/* Charts */}
-          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="col-span-1 md:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-xl shadow space-y-6">
-            <h3 className="text-lg font-semibold">Project Insights</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded">
-                <Bar data={barData} options={{ responsive: true, plugins: { legend: { display: false } } }} />
+          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="lg:col-span-2 space-y-4 sm:space-y-6">
+            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow">
+              <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Projects Overview</h3>
+              <div className="h-48 sm:h-64">
+                <Bar 
+                  data={barData} 
+                  options={{ 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    scales: {
+                      x: {
+                        ticks: {
+                          maxRotation: 45,
+                          minRotation: 45,
+                          fontSize: 10
+                        }
+                      },
+                      y: {
+                        beginAtZero: true
+                      }
+                    }
+                  }} 
+                />
               </div>
-              <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded">
-                <Line data={lineData} options={{ responsive: true, plugins: { legend: { display: false } } }} />
+            </div>
+
+            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow">
+              <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Activity</h3>
+              <div className="h-48 sm:h-64">
+                <Line 
+                  data={lineData} 
+                  options={{ 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    scales: {
+                      x: {
+                        ticks: {
+                          maxRotation: 45,
+                          minRotation: 45,
+                          fontSize: 10
+                        }
+                      },
+                      y: {
+                        beginAtZero: true
+                      }
+                    }
+                  }} 
+                />
               </div>
             </div>
           </motion.div>
@@ -942,12 +1004,17 @@ education.forEach((e) => {
 </div>
 
         {/* Projects */}
-        <section className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Projects</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-300">{projects.length} project(s)</p>
+        <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold">Projects</h2>
+            <button 
+              onClick={openAddProject} 
+              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm sm:text-base w-full sm:w-auto text-center transition-colors"
+            >
+              Add New Project
+            </button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="flex flex-wrap gap-2">
             {projects.length ? projects.map((p) => (
               <motion.article key={p.id} whileHover={{ scale: 1.02 }} className="border rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900">
                 {p.image_url && <img src={p.image_url} alt={p.title} className="w-full h-40 object-cover" />}
