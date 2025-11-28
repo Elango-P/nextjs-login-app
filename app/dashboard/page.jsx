@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { jsPDF } from "jspdf";
 import { Bar, Line } from "react-chartjs-2";
+import dynamic from 'next/dynamic';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -18,8 +19,18 @@ import {
   Legend,
 } from "chart.js";
 import autoTable from "jspdf-autotable";
-import ThemeSelector from "../../components/ThemeSelector";
-import ParticlesThemeSelector from "../../components/ParticlesThemeSelector";
+
+// Dynamically import theme-dependent components with SSR disabled
+const ThemeSelector = dynamic(
+  () => import("../../components/ThemeSelector"),
+  { ssr: false }
+);
+
+const ParticlesThemeSelector = dynamic(
+  () => import("../../components/ParticlesThemeSelector"),
+  { ssr: false }
+);
+
 import { useTheme } from "../../context/ThemeContext";
 ChartJS.register(
   CategoryScale,
@@ -32,7 +43,7 @@ ChartJS.register(
   Legend
 );
 
-export default function Dashboard() {
+function DashboardContent() {
   const { changeParticlesTheme } = useTheme();
   const router = useRouter();
 
@@ -1162,4 +1173,23 @@ education.forEach((e) => {
 
     </div>
   );
+}
+
+export default function Dashboard() {
+  // This ensures the component is only rendered on the client side
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  return <DashboardContent />;
 }
