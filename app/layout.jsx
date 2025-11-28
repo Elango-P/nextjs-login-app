@@ -9,7 +9,7 @@ import ParticlesBackground from "../components/ParticlesBackground";
 export const metadata = {
   title: "Next + Supabase Auth",
 };
-
+import { Analytics } from "@vercel/analytics/next"
 export default function RootLayout({ children }) {
   return (
     <html suppressHydrationWarning>
@@ -20,6 +20,7 @@ export default function RootLayout({ children }) {
           </div>
           <div className="relative z-10">
             {children}
+             <Analytics />
           </div>
         </ThemeProvider>
       </body>

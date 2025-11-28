@@ -5,8 +5,8 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Github, ExternalLink } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../utils/supabaseClient';
-import ProjectBackground from '@/components/ProjectBackground';
-import ParticlesBackground from '../../../components/ParticlesBackground';
+import Lottie from 'lottie-react';
+import loaderAnimation from "../../../public/loader.json";
 
 export default function ProjectDetails({ params }) {
   // Unwrap the params promise
@@ -44,9 +44,15 @@ export default function ProjectDetails({ params }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-sky-500"></div>
-      </div>
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
+           <div className="flex flex-col items-center gap-5">
+             <Lottie
+               animationData={loaderAnimation}
+               loop={true}
+               style={{ width: 300, height: 300 }}
+             />
+           </div>
+         </div>
     );
   }
 
@@ -74,7 +80,6 @@ export default function ProjectDetails({ params }) {
 
   return (
     <div className="relative min-h-screen py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
-     <ParticlesBackground />
       <div className="relative z-10 max-w-5xl mx-auto">
         <motion.button
           onClick={() => router.back()}
