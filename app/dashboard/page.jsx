@@ -18,8 +18,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import autoTable from "jspdf-autotable";
-
+import loaderAnimation from "../../public/loader.json";
 // Dynamically import theme-dependent components with SSR disabled
 const ThemeSelector = dynamic(
   () => import("../../components/ThemeSelector"),
@@ -32,6 +31,7 @@ const ParticlesThemeSelector = dynamic(
 );
 
 import { useTheme } from "../../context/ThemeContext";
+import Lottie from "lottie-react";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -218,6 +218,11 @@ function DashboardContent() {
     if (newDark) document.documentElement.classList.add("dark");
     else document.documentElement.classList.remove("dark");
     localStorage.setItem("prefers-dark", newDark ? "true" : "false");
+  };
+
+  const viewProfile = () => {
+    if (!profile?.full_name) return;
+    router.push(`/${encodeURIComponent(profile.full_name)}/profile`);
   };
 
 const uploadFile = async (file) => {
@@ -833,7 +838,18 @@ education.forEach((e) => {
     ],
   };
 
-  if (loading || !profile) return <p className="p-8 text-center">Loading...</p>;
+  if (loading || !profile)
+    return (
+       <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
+      <div className="flex flex-col items-center gap-5">
+        <Lottie
+          animationData={loaderAnimation}
+          loop={true}
+          style={{ width: 300, height: 300 }}
+        />
+      </div>
+    </div>
+    );
 
   // ---------------------------------------------------------
   // UI
@@ -853,6 +869,7 @@ education.forEach((e) => {
             <button onClick={openAddProject} className="px-3 py-2 bg-blue-600 text-white rounded">Add Project</button>
 
             <button onClick={downloadResume} className="px-3 py-2 bg-indigo-600 text-white rounded">Download Resume</button>
+            <button onClick={viewProfile} className="px-3 py-2 bg-green-600 text-white rounded">View Profile</button>
             <button onClick={logout} className="px-3 py-2 bg-red-500 text-white rounded">Logout</button>
             <ParticlesThemeSelector onThemeChange={changeParticlesTheme} />
             {/* <ThemeSelector /> */}

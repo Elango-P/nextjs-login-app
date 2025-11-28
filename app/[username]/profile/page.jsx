@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { supabase } from "../../utils/supabaseClient";
 import { motion } from "framer-motion";
 // Importing Lucide icons for a modern, consistent look
 import { Mail, Phone, Link, Briefcase, GraduationCap, Zap, Code, ListChecks, Globe, Eye } from 'lucide-react';
+import Lottie from "lottie-react";
+import loaderAnimation from "../../../public/loader.json";
 
 // --- Component Definition ---
 
@@ -15,7 +17,7 @@ export default function PublicProfile({ params }) {
   const [education, setEducation] = useState([]);
   const [skills, setSkills] = useState([]);
   const [loading, setLoading] = useState(true);
-
+const resolvedParams = React.use(params);
   // --- Data Loading Logic (Unchanged) ---
   useEffect(() => {
     loadData();
@@ -29,7 +31,7 @@ export default function PublicProfile({ params }) {
     const { data: userData } = await supabase
       .from("users")
       .select("*")
-      .eq("full_name", "elango")
+      .eq("full_name", resolvedParams?.username)
       .maybeSingle();
 
     if (!userData) {
@@ -75,7 +77,18 @@ export default function PublicProfile({ params }) {
   }
 
   // --- UI Logic ---
-  if (loading) return <p className="p-8 text-center text-gray-600">Loading...</p>;
+  if (loading)
+    return (
+       <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
+      <div className="flex flex-col items-center gap-5">
+        <Lottie
+          animationData={loaderAnimation}
+          loop={true}
+          style={{ width: 300, height: 300 }}
+        />
+      </div>
+    </div>
+    );
   if (!profile) return <p className="p-8 text-center text-red-600">User not found</p>;
 
   const fadeUp = {
