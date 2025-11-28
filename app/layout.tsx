@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "../context/ThemeContext";
 import ParticlesBackground from "../components/ParticlesBackground";
+import { Analytics } from "@vercel/analytics/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,8 @@ export default function RootLayout({
           </div>
           <div className="relative z-10">
             {children}
+             <Analytics />
+
           </div>
         </ThemeProvider>
       </body>
