@@ -3,12 +3,24 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../../utils/supabaseClient";
 import { motion } from "framer-motion";
-// Importing Lucide icons for a modern, consistent look
-import { Mail, Phone, Link, Briefcase, GraduationCap, Zap, Code, ListChecks, Globe, Eye } from 'lucide-react';
 import Lottie from "lottie-react";
 import loaderAnimation from "../../../public/loader.json";
-
-// --- Component Definition ---
+import {
+  Mail,
+  Phone,
+  Link,
+  Briefcase,
+  GraduationCap,
+  Zap,
+  Code,
+  ListChecks,
+  Globe,
+  Eye,
+  GitBranch,
+  Twitter,
+  Github,
+  Linkedin,
+} from "lucide-react";
 
 export default function PublicProfile({ params }) {
   const [profile, setProfile] = useState(null);
@@ -16,405 +28,432 @@ export default function PublicProfile({ params }) {
   const [experience, setExperience] = useState([]);
   const [education, setEducation] = useState([]);
   const [skills, setSkills] = useState([]);
+  const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
-const resolvedParams = React.use(params);
-  // --- Data Loading Logic (Unchanged) ---
+  const resolvedParams = React.use(params);
+
+  // --- Load data ---
   useEffect(() => {
     loadData();
   }, []);
 
+
   async function loadData() {
     setLoading(true);
+    try {
+      // Example: lookup user by username param
+      const username = resolvedParams?.username || "elango";
+      const { data: userData } = await supabase
+        .from("users")
+        .select("*")
+        .eq("full_name", username)
+        .maybeSingle();
 
-    // NOTE: This should ideally use params.id or params.slug for dynamic routing.
-    // Keeping "elango" as per original implementation for demonstration.
-    const { data: userData } = await supabase
-      .from("users")
-      .select("*")
-      .eq("full_name", resolvedParams?.username)
-      .maybeSingle();
+      if (!userData) {
+        setProfile(null);
+        setLoading(false);
+        return;
+      }
 
-    if (!userData) {
-      setProfile(null);
-      setLoading(false);
-      return;
-    }
+      setProfile(userData);
+      const userId = userData.id;
 
-    setProfile(userData);
-    const userId = userData.id;
-
-    const [{ data: projs }, { data: exps }, { data: eds }, { data: sks }] =
-      await Promise.all([
+      const [projs, exps, eds, sks, bgs] = await Promise.all([
         supabase.from("projects").select("*").eq("user_id", userId),
         supabase.from("experience").select("*").eq("user_id", userId).order("start_date", { ascending: false }),
         supabase.from("education").select("*").eq("user_id", userId),
         supabase.from("skills").select("*").eq("user_id", userId),
-      ]);
+        supabase.from("blogs").select("*").eq("user_id", userId).limit(6),
+      ]).then(res => res.map(r => r.data));
 
-    // --- TEMPORARY: Injecting content for demonstration. ---
-    const augmentedExperience = (exps || []).map(exp => ({
-        ...exp,
-        // Assuming the description field holds the full details or is replaced by this array
-        bullet_points: [
-          ...(exp.description ? [exp.description] : []), // Keep existing description if present
-        ]
-    }));
-
-    const augmentedProjects = (projs || []).map(proj => ({
-      ...proj,
-      // Assuming project descriptions or a separate details field
-      details: [
-        ...(proj.description ? [proj.description]: []), 
-      ]
-    }));
-    // --- END TEMPORARY INJECTION ---
-
-    setProjects(augmentedProjects);
-    setExperience(augmentedExperience);
-    setEducation(eds || []);
-    setSkills(sks || []);
-    setLoading(false);
+      setProjects(projs || []);
+      setExperience(exps || []);
+      setEducation(eds || []);
+      setSkills(sks || []);
+      setBlogs(bgs || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  // --- UI Logic ---
   if (loading)
     return (
-       <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
-      <div className="flex flex-col items-center gap-5">
-        <Lottie
-          animationData={loaderAnimation}
-          loop={true}
-          style={{ width: 300, height: 300 }}
-        />
+      <div className="min-h-screen flex items-center justify-center bg-[#061226]">
+        <div className="w-72">
+          <Lottie animationData={loaderAnimation} loop />
+        </div>
       </div>
-    </div>
     );
-  if (!profile) return <p className="p-8 text-center text-red-600">User not found</p>;
 
+  if (!profile) return <p className="p-8 text-center text-rose-400">User not found</p>;
+
+  // Animations
   const fadeUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+    hidden: { opacity: 0, y: 16 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.45 } },
   };
 
-  // --- Helper Functions for Section Rendering ---
+  // Small helpers
+  const formatDateRange = (start, end) => {
+    if (!start) return "";
+    const s = new Date(start).toLocaleString("default", { year: "numeric", month: "short" });
+    const e = end ? new Date(end).toLocaleString("default", { year: "numeric", month: "short" }) : "Present";
+    return `${s} — ${e}`;
+  };
 
-  const renderHeaderSection = (profile, fadeUp) => (
-    <motion.div
-      className="relative overflow-hidden flex flex-col md:flex-row items-center gap-8 border-b border-gray-200 pb-8"
-      variants={fadeUp}
-    >
-      {/* Profile Image */}
-      <img
-        src={"https://elangomedia.s3.ap-southeast-2.amazonaws.com/product/180-product-4794-20251125201841.png"}
-        alt="Profile photo"
-        className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover ring-2 ring-sky-500 ring-offset-4 shadow-xl"
-      />
-      <div className="text-center md:text-left">
-        <h1 className="text-4xl font-extrabold text-gray-900 tracking-tighter leading-none">Elango Ponnusamy</h1>
-        <p className="mt-2 text-2xl font-light text-gray-600">{profile.bio}</p>
+  // --- Navigation ---
+  const Navigation = () => {
+    const scrollToSection = (e, id) => {
+      e.preventDefault();
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    };
 
-        {/* Contact Info with Lucide Icons */}
-        <div className="mt-6 flex flex-wrap justify-center md:justify-start gap-x-8 gap-y-3 text-sm text-gray-600">
-          <a href="mailto:b.elango93@gmail.com" className="hover:text-sky-600 transition-colors flex items-center gap-2 font-medium">
-            <Mail className="w-4 h-4 text-sky-500" /> b.elango93@gmail.com
-          </a>
-          <span className="flex items-center gap-2 font-medium">
-            <Phone className="w-4 h-4 text-sky-500" /> 9600576351
-          </span>
+    return (
+      <nav className="hidden md:flex items-center space-x-6">
+        {[
+          { name: 'ABOUT', id: 'about' },
+          { name: 'EXPERIENCE', id: 'experience' },
+          { name: 'SKILLS', id: 'skills' },
+          { name: 'EDUCATION', id: 'education' },
+          { name: 'BLOGS', id: 'blogs' },
+          { name: 'PROJECTS', id: 'projects' }
+        ].map((item) => (
           <a
-            href="https://www.linkedin.com/in/p-elango-881ba2139/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-sky-600 transition-colors flex items-center gap-2 font-medium"
+            key={item.id}
+            href={`#${item.id}`}
+            className="text-sm font-medium text-gray-300 hover:text-white transition-colors whitespace-nowrap"
+            onClick={(e) => scrollToSection(e, item.id)}
           >
-            <Link className="w-4 h-4 text-sky-500" /> LinkedIn Profile
+            {item.name}
           </a>
-          <a
-            href="https://elango-p.vercel.app/elango/profile"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-sky-600 transition-colors flex items-center gap-2 font-medium"
-          >
-            <Globe className="w-4 h-4 text-sky-500" />
-            Website
-          </a>
-        </div>
-        <div className="mt-5 flex flex-wrap justify-center md:justify-start gap-2">
-          <span className="text-xs px-3 py-1 rounded-full bg-green-50 text-green-700 border border-green-200">Node.js</span>
-          <span className="text-xs px-3 py-1 rounded-full bg-gray-900 text-white border border-gray-800">Next.js</span>
-          <span className="text-xs px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">CSS</span>
-          <span className="text-xs px-3 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-200">HTML</span>
-          <span className="text-xs px-3 py-1 rounded-full bg-violet-50 text-violet-700 border border-violet-200">Bootstrap</span>
-          <span className="text-xs px-3 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">Tailwind CSS</span>
-        </div>
+        ))}
+      </nav>
+    );
+  };
 
-        {/* Watermark: faint rotating tech stack badges (like React symbol) */}
-        <motion.div
-          aria-hidden
-          className="pointer-events-none select-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-          animate={{ rotate: [0, 360] }}
-          transition={{ duration: 220, repeat: Infinity, ease: "linear" }}
-        >
-          <div className="flex flex-wrap justify-center gap-3 opacity-[0.06] dark:opacity-[0.05]">
-            <span className="text-xs px-3 py-1 rounded-full bg-green-500/10 text-green-700/80 border border-green-400/30">Node.js</span>
-            <span className="text-xs px-3 py-1 rounded-full bg-gray-900/10 text-gray-900/80 dark:text-white/80 border border-gray-800/30">Next.js</span>
-            <span className="text-xs px-3 py-1 rounded-full bg-blue-500/10 text-blue-700/80 border border-blue-400/30">CSS</span>
-            <span className="text-xs px-3 py-1 rounded-full bg-orange-500/10 text-orange-700/80 border border-orange-400/30">HTML</span>
-            <span className="text-xs px-3 py-1 rounded-full bg-violet-500/10 text-violet-700/80 border border-violet-400/30">Bootstrap</span>
-            <span className="text-xs px-3 py-1 rounded-full bg-sky-500/10 text-sky-700/80 border border-sky-400/30">Tailwind CSS</span>
+  // --- Sections ---
+  // --- Sections ---
+  const Header = () => (
+    <header id="about" className="relative z-10 py-10">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex justify-between items-center mb-12">
+          <h1 className="text-2xl font-bold text-white">{"Elango" || 'PORTFOLIO'}</h1>
+          <Navigation />
+        </div>
+        <div className="flex flex-col lg:flex-row items-center gap-8">
+        {/* Left: Avatar + intro */}
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" className="flex items-center gap-6">
+          <div className="relative">
+            <img src={"https://elangomedia.s3.ap-southeast-2.amazonaws.com/product/180-product-4794-20251125201841.png"}
+              alt={profile.full_name}
+              className="w-36 h-36 md:w-44 md:h-44 rounded-2xl object-cover ring-2 ring-rose-400/30 shadow-2xl"
+            />
+            <div className="absolute right-0 top-0 -translate-x-2 translate-y-2 bg-gradient-to-br from-pink-500 to-violet-600 text-white text-xs px-2 py-1 rounded-md shadow">
+              {profile.role || "Software Developer"}
+            </div>
+          </div>
+
+          <div className="text-left">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">{profile.display_name || profile.full_name}</h1>
+            <p className="mt-2 text-lg text-rose-200 max-w-xl">{profile.headline || "Building delightful web apps and APIs — JavaScript, React, Node.js."}</p>
+
+            <div className="mt-4 flex flex-wrap gap-3 items-center">
+              <a href={`mailto:${profile.email || 'hello@example.com'}`} className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-rose-500 to-violet-500 text-white font-semibold shadow hover:scale-[1.02] transition">
+                <Mail className="w-4 h-4" /> Contact
+              </a>
+
+              <a href={profile.website || "#"} target="_blank" rel="noreferrer" className="px-4 py-2 rounded-full border border-rose-700 text-rose-200 text-sm hover:bg-white/5 transition">Visit site</a>
+
+              <div className="ml-1 flex items-center gap-3 text-rose-200">
+                <a
+
+                  href="https://www.linkedin.com/in/p-elango-881ba2139/"
+                  aria-label="LinkedIn" className="hover:text-white"><Linkedin className="w-5 h-5" /></a>
+                <a href={profile.github_url || "#"} aria-label="Github" className="hover:text-white"><Github className="w-5 h-5" /></a>
+                <a href={profile.twitter_url || "#"} aria-label="Twitter" className="hover:text-white"><Twitter className="w-5 h-5" /></a>
+              </div>
+            </div>
+
+            <div className="mt-5 flex gap-2 flex-wrap">
+              {(profile.tags || ["React", "Next.js", "Node.js"]).slice(0, 6).map((t, i) => (
+                <span key={i} className="text-xs px-3 py-1 rounded-md bg-white/5 text-rose-200 border border-white/6">{t}</span>
+              ))}
+            </div>
           </div>
         </motion.div>
+
+        {/* Right: Code editor preview */}
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" className="mt-8 lg:mt-0 w-full lg:w-[540px] rounded-xl p-4 bg-[#071028] border border-white/6 shadow-lg">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="w-3 h-3 rounded-full bg-[#ff5f56]"></span>
+            <span className="w-3 h-3 rounded-full bg-[#ffbd2e]"></span>
+            <span className="w-3 h-3 rounded-full bg-[#27c93f]"></span>
+            <div className="ml-auto text-xs text-rose-300">main.js</div>
+          </div>
+
+          <pre className="text-xs leading-relaxed text-[#9fe3ff] font-mono bg-transparent overflow-x-auto p-3 rounded">
+            {`const profile = {
+  name: "${profile.display_name || profile.full_name}",
+  role: "${profile.role || 'Software Developer'}",
+  tech: ["${(profile.tags || ['React', 'Next.js']).join('", "')}"]
+};
+
+export default profile;
+`}
+          </pre>
+        </motion.div>
+        </div>
       </div>
-    </motion.div>
+    </header>
   );
 
-  const renderExperienceSection = (experience, fadeUp) => (
-    <motion.section variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
-      <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-gray-800 border-b-2 border-sky-400 pb-3 mb-6">
-        <Briefcase className="w-6 h-6 text-sky-500" /> Experience
-      </h2>
-      <div className="space-y-8">
-        {experience.map((exp) => (
-          <motion.div
-            key={exp.id}
-            className="p-6 bg-white border-l-4 border-sky-500 shadow-md rounded-lg transition-shadow duration-300 hover:shadow-xl"
-            whileHover={{ x: 3 }}
-          >
-            <div className="flex justify-between items-start flex-wrap mb-1">
-              <h3 className="text-xl font-extrabold text-gray-900 leading-tight">{exp.role}</h3>
-              <p className="text-sm font-semibold text-gray-500 whitespace-nowrap pt-1">
-                {exp.start_date} - {exp.end_date || "Present"}
-              </p>
-            </div>
-            <p className="text-lg font-medium text-sky-600">{exp.company_name}</p>
-            
-            {exp.bullet_points && exp.bullet_points.length > 0 ? (
-              <ul className="mt-4 text-gray-700 space-y-2">
-                {exp.bullet_points.map((point, index) => (
-                  <li key={index} className="text-base flex items-start gap-2">
-                    <ListChecks className="w-4 h-4 mt-1 text-green-500 flex-shrink-0" />
-                    <span className="leading-relaxed">{point}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-3 text-gray-700 leading-relaxed">{exp.description}</p>
-            )}
-          </motion.div>
-        ))}
-      </div>
-    </motion.section>
-  );
+  const Experience = () => (
+    <section id="experience" className="max-w-7xl mx-auto px-6 py-12">
+      <motion.h2 variants={fadeUp} initial="hidden" whileInView="visible" className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+        <Briefcase className="w-5 h-5 text-rose-400" /> Experience
+      </motion.h2>
 
-  const renderProjectsSection = (projects, fadeUp) => (
-    <motion.section variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
-      <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-gray-800 border-b-2 border-sky-400 pb-3 mb-6">
-        <Code className="w-6 h-6 text-sky-500" /> Projects
-      </h2>
-      <div className="grid md:grid-cols-2 gap-8">
-        {projects.map((proj) => (
-          <motion.div
-            key={proj.id}
-            className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl hover:border-sky-300"
-            whileHover={{ y: -4 }}
-          >
-            {proj.image_url ? (
-                <img src={proj.image_url} alt={proj.title} className="w-full h-40 object-cover border-b border-gray-200" />
-            ) : (
-                <div className="h-2 bg-sky-500"></div> 
-            )}
-            
-            <div className="p-5">
-              <div className="flex justify-between items-start">
-                <h3 className="font-extrabold text-xl text-sky-700 mb-2">{proj.title}</h3>
-                <a 
-                  href={`/projects/${proj.id}`}
-                  className="text-gray-400 hover:text-sky-600 transition-colors"
-                  title="View Project Details"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                >
-                  <Eye className="w-5 h-5" />
-                </a>
+      <div className="grid lg:grid-cols-2 gap-6">
+        {experience.length ? experience.map(exp => (
+          <motion.div key={exp.id} whileHover={{ y: -6 }} className="relative p-6 rounded-xl bg-[#041025] border border-white/6 shadow-lg">
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="text-lg font-extrabold text-white">{exp.role}</h3>
+                <p className="text-sm text-rose-200">{exp.company_name}</p>
               </div>
-              
-              {proj.details && proj.details.length > 0 ? (
-                <ul className="mt-3 text-gray-600 space-y-1">
-                  {proj.details.map((detail, index) => (
-                    <li key={index} className="text-sm flex items-start gap-2">
-                      <span className="text-sky-500 font-bold flex-shrink-0">•</span>
-                      {detail}
-                    </li>
+              <div className="text-xs text-rose-300">{formatDateRange(exp.start_date, exp.end_date)}</div>
+            </div>
+
+            <div className="mt-4 text-sm text-rose-100">
+              {exp.bullet_points && exp.bullet_points.length ? (
+                <ul className="space-y-2 list-inside">
+                  {exp.bullet_points.map((b, i) => (
+                    <li key={i} className="flex items-start gap-2"><ListChecks className="w-4 h-4 text-emerald-400 mt-1" /> <span>{b}</span></li>
                   ))}
                 </ul>
               ) : (
-                <p className="text-gray-600 text-sm">{proj.description}</p>
+                <p>{exp.description}</p>
               )}
-              {Array.isArray(proj.skills) && proj.skills.length > 0 ? (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {proj.skills.map((s, idx) => (
-                    <motion.span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>{s}</motion.span>
-                  ))}
-                </div>
-              ) : Array.isArray(proj.tech_stack) && proj.tech_stack.length > 0 ? (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {proj.tech_stack.map((s, idx) => (
-                    <motion.span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>{s}</motion.span>
-                  ))}
-                </div>
-              ) : (typeof proj.tech_stack === 'string' && proj.tech_stack.trim()) ? (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {proj.tech_stack.split(',').map((s, idx) => {
-                    const label = s.trim();
-                    if (!label) return null;
-                    return (
-                      <motion.span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>{label}</motion.span>
-                    );
-                  })}
-                </div>
-              ) : null}
-              
             </div>
           </motion.div>
-        ))}
+        )) : <p className="text-rose-200">No experience added yet.</p>}
       </div>
-    </motion.section>
+    </section>
   );
 
-  const renderSkillsSection = (skills, fadeUp) => (
-    <motion.section variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-      <h2 className="flex items-center gap-3 text-2xl font-bold tracking-tight text-gray-800 border-b border-sky-400 pb-3 mb-5">
-        <Zap className="w-5 h-5 text-sky-500" /> Core Skills
-      </h2>
-      <div className="flex flex-wrap gap-3">
-        {skills.map((s) => (
-          <motion.span
-            key={s.id}
-            className="px-3 py-1 bg-sky-50 text-sky-700 rounded-full font-semibold text-sm border border-sky-200 shadow-sm transition-colors"
-            whileHover={{ scale: 1.05, backgroundColor: '#e0f2fe' }}
+  const Projects = () => (
+    <section id="projects" className="max-w-7xl mx-auto px-6 py-12">
+      <motion.h2 variants={fadeUp} initial="hidden" whileInView="visible" className="text-2xl font-bold text-white mb-8 flex items-center gap-3">
+        <Code className="w-5 h-5 text-rose-400" /> Projects
+      </motion.h2>
+      
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {projects.length ? projects.map((proj) => (
+          <motion.article 
+            key={proj.id}
+            className="group relative rounded-xl overflow-hidden bg-[#041025] border border-white/6 hover:border-rose-500/30 transition-colors duration-300"
+            whileHover={{ y: -6 }}
           >
-            {s.skill_name}
-          </motion.span>
-        ))}
-      </div>
-    </motion.section>
-  );
-
-  const renderEducationSection = (education, fadeUp) => (
-    <motion.section variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-      <h2 className="flex items-center gap-3 text-2xl font-bold tracking-tight text-gray-800 border-b border-sky-400 pb-3 mb-5">
-        <GraduationCap className="w-5 h-5 text-sky-500" /> Education
-      </h2>
-      <div className="space-y-4">
-        {education.map((ed) => (
-          <motion.div
-            key={ed.id}
-            className="p-3 bg-gray-50 rounded-lg border border-gray-200 transition-shadow hover:shadow-md"
-            whileHover={{ scale: 1.02 }}
-          >
-            <h3 className="text-lg font-bold text-gray-800 leading-tight">{ed.degree}</h3>
-            <p className="text-gray-700 text-sm font-medium">{ed.institute}</p>
-            <p className="text-xs text-gray-500 mt-1">
-              {ed.start_year} - {ed.end_year}
-            </p>
-          </motion.div>
-        ))}
-      </div>
-    </motion.section>
-  );
-
-  // --- Main Render ---
-
-  return (
-   <div className="relative min-h-screen p-4 sm:p-8    from-slate-50 via-white to-indigo-50 dark:from-slate-900 dark:via-slate-950 dark:to-indigo-950 overflow-hidden">
-      <motion.svg
-        aria-hidden
-        viewBox="0 0 841.9 595.3"
-        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[720px] h-[720px] opacity-[0.06] dark:opacity-[0.05]"
-        animate={{ rotate: [0, 360] }}
-        transition={{ duration: 240, repeat: Infinity, ease: "linear" }}
-      >
-        <defs>
-          <linearGradient id="reactGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#60a5fa" />
-            <stop offset="100%" stopColor="#22d3ee" />
-          </linearGradient>
-        </defs>
-        <g fill="none" stroke="url(#reactGrad)" strokeWidth="10">
-          <ellipse cx="420.9" cy="296.5" rx="190" ry="74" />
-          <ellipse cx="420.9" cy="296.5" rx="190" ry="74" transform="rotate(60 420.9 296.5)" />
-          <ellipse cx="420.9" cy="296.5" rx="190" ry="74" transform="rotate(120 420.9 296.5)" />
-        </g>
-        <circle cx="420.9" cy="296.5" r="18" fill="url(#reactGrad)" />
-      </motion.svg>
-      {/* Decorative gradient accents for professional look */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute -top-24 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-sky-300 via-indigo-300 to-purple-300 opacity-30 blur-3xl dark:opacity-20"
-        animate={{ y: [0, -15, 0], rotate: [0, 8, 0] }}
-        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-24 -right-20 h-80 w-80 rounded-full bg-gradient-to-br from-rose-300 via-amber-300 to-emerald-300 opacity-30 blur-3xl dark:opacity-20"
-        animate={{ y: [0, 18, 0], rotate: [0, -10, 0] }}
-        transition={{ duration: 16, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
-      />
-
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute top-1/3 -left-24 h-56 w-56 rounded-full bg-gradient-to-br from-emerald-300 via-teal-300 to-cyan-300 opacity-25 blur-3xl dark:opacity-15"
-        animate={{ scale: [1, 1.08, 1], opacity: [0.25, 0.35, 0.25] }}
-        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
-      />
-
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute top-1/4 -right-20 h-64 w-64 rounded-full bg-gradient-to-br from-fuchsia-300 via-pink-300 to-rose-300 opacity-20 blur-3xl dark:opacity-15"
-        animate={{ scale: [1, 1.06, 1], y: [0, -12, 0] }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
-      />
-
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.06),transparent_60%)]"
-        animate={{ opacity: [0.25, 0.4, 0.25] }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      <motion.div
-        className="max-w-7xl mx-auto bg-white shadow-2xl rounded-2xl p-6 md:p-12 border border-gray-200"
-        initial="hidden"
-        animate="visible"
-        variants={{
-          visible: { transition: { staggerChildren: 0.15 } },
-        }}
-      >
-        <div className="space-y-10">
-          
-          {/* Header Section */}
-          {renderHeaderSection(profile, fadeUp)}
-
-          {/* Main Content Grid */}
-          <div className="lg:grid lg:grid-cols-3 lg:gap-12 pt-6">
+            {proj.image_url ? (
+              <div className="h-40 overflow-hidden">
+                <img 
+                  src={proj.image_url} 
+                  alt={proj.title} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+            ) : (
+              <div className="h-2 bg-gradient-to-r from-rose-500 to-violet-600"></div> 
+            )}
             
-            {/* Left Column (Main Content) - Experience & Projects */}
-            <div className="lg:col-span-2 space-y-10">
-              {renderExperienceSection(experience, fadeUp)}
-              <div className="w-full h-px bg-gray-200 lg:hidden"></div> {/* Separator for mobile view */}
-              {renderProjectsSection(projects, fadeUp)}
+            <div className="p-5">
+              <div className="flex justify-between items-start gap-3">
+                <h3 className="text-lg font-extrabold text-white">{proj.title}</h3>
+                {(proj.live_url || proj.repo_url) && (
+                  <div className="flex gap-2">
+                    {proj.live_url && (
+                      <a 
+                        href={proj.live_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-rose-300 hover:text-white transition-colors"
+                        title="View Live"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    )}
+                    {proj.repo_url && (
+                      <a 
+                        href={proj.repo_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-rose-300 hover:text-white transition-colors"
+                        title="View Source"
+                      >
+                        <Github className="w-4 h-4" />
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+              
+              <p className="mt-2 text-sm text-rose-200">
+                {proj.description || proj.tagline || 'No description available'}
+              </p>
+              
+              {(proj.tech_stack?.length > 0 || proj.skills?.length > 0) && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {(proj.tech_stack || proj.skills || []).slice(0, 5).map((tech, idx) => (
+                    <motion.span 
+                      key={idx} 
+                      className="text-xs px-2.5 py-1 bg-white/5 text-rose-200 rounded-full border border-white/5"
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      {tech}
+                    </motion.span>
+                  ))}
+                </div>
+              )}
             </div>
+          </motion.article>
+        )) : (
+          <div className="col-span-full text-center py-10">
+            <p className="text-rose-300">No projects to display yet.</p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
 
-            {/* Right Column (Side Content) - Skills & Education */}
-            <div className="lg:col-span-1 space-y-10 mt-10 lg:mt-0">
-              {renderSkillsSection(skills, fadeUp)}
-              {renderEducationSection(education, fadeUp)}
-            </div>
+  const Skills = () => (
+    <section id="skills" className="max-w-7xl mx-auto px-6 py-12">
+      <motion.h2 variants={fadeUp} initial="hidden" whileInView="visible" className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+        <Zap className="w-5 h-5 text-rose-400" /> Skills
+      </motion.h2>
+
+      <div className="flex flex-wrap gap-3">
+        {skills.length ? skills.map(s => (
+          <div key={s.id || s.skill_name} className="w-auto px-3 py-2 rounded bg-[#041225] border border-white/6 text-rose-200 text-sm font-medium shadow">{s.skill_name || s}</div>
+        )) : (
+          ["HTML", "CSS", "JavaScript", "React", "Node.js"].map((s, i) => (
+            <div key={i} className="w-auto px-3 py-2 rounded bg-[#041225] border border-white/6 text-rose-200 text-sm font-medium shadow">{s}</div>
+          ))
+        )}
+      </div>
+    </section>
+  );
+
+  const Education = () => (
+    <section id="education" className="max-w-7xl mx-auto px-6 py-12">
+      <motion.h2 variants={fadeUp} initial="hidden" whileInView="visible" className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+        <GraduationCap className="w-5 h-5 text-rose-400" /> Education
+      </motion.h2>
+
+      <div className="grid md:grid-cols-3 gap-4">
+        {education.length ? education.map(ed => (
+          <div key={ed.id} className="p-4 rounded-xl bg-[#041025] border border-white/6 text-rose-200">
+            <h3 className="font-bold text-white">{ed.degree}</h3>
+            <p className="text-sm mt-1">{ed.institute}</p>
+            <p className="text-xs mt-2 text-rose-300">{ed.start_year} — {ed.end_year}</p>
+          </div>
+        )) : (
+          <p className="text-rose-200">No education records.</p>
+        )}
+      </div>
+    </section>
+  );
+
+  const Blogs = () => (
+    <section id="blogs" className="max-w-7xl mx-auto px-6 py-12">
+      <motion.h2 variants={fadeUp} initial="hidden" whileInView="visible" className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+        <GitBranch className="w-5 h-5 text-rose-400" /> Blog & Articles
+      </motion.h2>
+
+      <div className="grid md:grid-cols-3 gap-6">
+        {blogs.length ? blogs.map(b => (
+          <article key={b.id} className="rounded-xl overflow-hidden bg-[#031224] border border-white/6 p-4">
+            <h3 className="font-bold text-white">{b.title}</h3>
+            <p className="text-sm text-rose-200 mt-2">{b.excerpt || b.description?.slice(0, 100)}</p>
+            <div className="mt-4 text-xs text-rose-300">{b.reading_time || '3 min read'}</div>
+          </article>
+        )) : (
+          <p className="text-rose-200">No blog posts yet.</p>
+        )}
+      </div>
+    </section>
+  );
+
+  const Contact = () => (
+    <section className="max-w-7xl mx-auto px-6 py-12">
+      <motion.h2 variants={fadeUp} initial="hidden" whileInView="visible" className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+        <Mail className="w-5 h-5 text-rose-400" /> Contact
+      </motion.h2>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <form className="p-6 rounded-xl bg-[#041025] border border-white/6 space-y-4">
+          <input placeholder="Your name" className="w-full p-3 rounded bg-transparent border border-white/6 text-rose-200 text-sm" />
+          <input placeholder="Your email" className="w-full p-3 rounded bg-transparent border border-white/6 text-rose-200 text-sm" />
+          <textarea placeholder="Message" className="w-full p-3 rounded bg-transparent border border-white/6 text-rose-200 text-sm h-32"></textarea>
+          <div className="flex items-center justify-between">
+            <button type="button" className="px-4 py-2 rounded bg-gradient-to-r from-rose-500 to-violet-500 text-white font-semibold shadow">Send message</button>
+            <div className="text-xs text-rose-300">Or email me at <a href={`mailto:${profile.email}`} className="underline">{profile.email}</a></div>
+          </div>
+        </form>
+
+        <div className="p-6 rounded-xl bg-[#041025] border border-white/6">
+          <h3 className="font-bold text-white">Get in touch</h3>
+          <p className="text-rose-200 mt-2">I'm open to freelance work and new opportunities. Connect on social or send an email.</p>
+
+          <div className="mt-4 flex flex-col gap-3 text-rose-200">
+            <div className="flex items-center gap-3"><Phone className="w-4 h-4" /> <span>{profile.phone || '—'}</span></div>
+            <div className="flex items-center gap-3"><Globe className="w-4 h-4" /> <a href={profile.website} className="underline">Website</a></div>
+            <div className="flex items-center gap-3"><Linkedin className="w-4 h-4" /> <a href={profile.linkedin_url} className="underline">LinkedIn</a></div>
+            <div className="flex items-center gap-3"><Github className="w-4 h-4" /> <a href={profile.github_url} className="underline">GitHub</a></div>
           </div>
         </div>
+      </div>
+    </section>
+  );
 
+  const Footer = () => (
+    <footer className="mt-6 border-t border-white/6 py-8">
+      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between text-rose-200">
+        <div>© {new Date().getFullYear()} {profile.display_name || profile.full_name}</div>
+        <div className="flex items-center gap-4">
+          <a href={profile.twitter_url} className="hover:text-white"><Twitter className="w-4 h-4" /></a>
+          <a href={profile.github_url} className="hover:text-white"><Github className="w-4 h-4" /></a>
+          <a href={profile.linkedin_url} className="hover:text-white"><Linkedin className="w-4 h-4" /></a>
+        </div>
+      </div>
+    </footer>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-[#030617] via-[#061226] to-[#071428] text-rose-50">
+      {/* subtle background shapes */}
+      <motion.div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -left-40 top-1/3 w-96 h-96 rounded-full bg-gradient-to-br from-pink-700 via-violet-700 to-indigo-600 opacity-20 blur-3xl" />
+        <div className="absolute -right-40 bottom-0 w-96 h-96 rounded-full bg-gradient-to-br from-cyan-600 via-emerald-500 opacity-12 blur-3xl" />
       </motion.div>
+
+      <main className="relative z-10">
+        <Header />
+        <Experience />
+        <Projects />
+        <Skills />
+        <Education />
+        <Blogs />
+        <Contact />
+        <Footer />
+      </main>
     </div>
   );
 }
