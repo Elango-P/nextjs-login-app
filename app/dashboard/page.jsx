@@ -32,6 +32,10 @@ const ParticlesThemeSelector = dynamic(
 
 import { useTheme } from "../../context/ThemeContext";
 import Lottie from "lottie-react";
+import ThreeBackground from "../../components/ThreeBackground";
+import Projects3D from "../../components/Projects3D";
+import Stats3D from "../../components/Stats3D";
+import Charts3D from "../../components/Charts3D";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -855,9 +859,11 @@ education.forEach((e) => {
   // UI
   // ---------------------------------------------------------
   return (
-       <div className="min-h-screen p-6  dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
-
-      <div className="max-w-6xl mx-auto space-y-6">
+       <div className="min-h-screen relative dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
+      {/* 3D Background */}
+      <ThreeBackground />
+      
+      <div className="relative z-10 max-w-6xl mx-auto space-y-6 p-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -875,6 +881,12 @@ education.forEach((e) => {
             {/* <ThemeSelector /> */}
           </div>
         </div>
+
+        {/* 3D Stats Overview */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-gray-900/50 backdrop-blur-sm p-4 rounded-2xl shadow-xl border border-gray-700/50">
+          <h3 className="text-lg font-semibold text-white mb-4">3D Stats Overview</h3>
+          <Stats3D projects={projects} experience={experience} education={education} skills={skills} />
+        </motion.div>
 
         {/* Top grid: profile + charts */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -912,6 +924,12 @@ education.forEach((e) => {
             </div>
           </motion.div>
         </div>
+
+        {/* 3D Charts Visualization */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-gray-900/50 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-gray-700/50">
+          <h3 className="text-lg font-semibold text-white mb-4">3D Charts Visualization</h3>
+          <Charts3D projects={projects} />
+        </motion.div>
 {/* About Section */}
 <div className="mt-10 bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-md">
   <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">
@@ -941,7 +959,16 @@ education.forEach((e) => {
   </p>
 </div>
 
-        {/* Projects */}
+        {/* 3D Projects Showcase */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-gray-900/50 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-gray-700/50">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-white">3D Projects Showcase</h2>
+            <button onClick={openAddProject} className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Add Project</button>
+          </div>
+          <Projects3D projects={projects} onProjectClick={openEditProject} />
+        </motion.div>
+
+        {/* Projects (Traditional View) */}
         <section className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Projects</h2>

@@ -79,7 +79,7 @@ const resolvedParams = React.use(params);
   // --- UI Logic ---
   if (loading)
     return (
-       <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
+       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 via-pink-500 to-red-500 animate-pulse">
       <div className="flex flex-col items-center gap-5">
         <Lottie
           animationData={loaderAnimation}
@@ -110,42 +110,111 @@ const resolvedParams = React.use(params);
         className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover ring-2 ring-sky-500 ring-offset-4 shadow-xl"
       />
       <div className="text-center md:text-left">
-        <h1 className="text-4xl font-extrabold text-gray-900 tracking-tighter leading-none">Elango Ponnusamy</h1>
-        <p className="mt-2 text-2xl font-light text-gray-600">{profile.bio}</p>
+        <h1 className="text-4xl font-extrabold text-white tracking-tighter leading-none drop-shadow-lg animate-pulse">Elango Ponnusamy</h1>
+        <p className="mt-2 text-2xl font-light text-yellow-200 drop-shadow-md">{profile.bio}</p>
 
         {/* Contact Info with Lucide Icons */}
-        <div className="mt-6 flex flex-wrap justify-center md:justify-start gap-x-8 gap-y-3 text-sm text-gray-600">
-          <a href="mailto:b.elango93@gmail.com" className="hover:text-sky-600 transition-colors flex items-center gap-2 font-medium">
-            <Mail className="w-4 h-4 text-sky-500" /> b.elango93@gmail.com
+        <div className="mt-6 flex flex-wrap justify-center md:justify-start gap-x-8 gap-y-3 text-sm text-white">
+          <a href="mailto:b.elango93@gmail.com" className="hover:text-yellow-300 transition-colors flex items-center gap-2 font-medium"
+             style={{ transformStyle: 'preserve-3d' }}
+             whileHover={{ 
+               rotateY: 10,
+               rotateX: -5,
+               scale: 1.05,
+               z: 15
+             }}>
+            <Mail className="w-4 h-4 text-yellow-400" /> b.elango93@gmail.com
           </a>
           <span className="flex items-center gap-2 font-medium">
-            <Phone className="w-4 h-4 text-sky-500" /> 9600576351
+            <Phone className="w-4 h-4 text-yellow-400" /> 9600576351
           </span>
           <a
             href="https://www.linkedin.com/in/p-elango-881ba2139/"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-sky-600 transition-colors flex items-center gap-2 font-medium"
+            className="hover:text-yellow-300 transition-colors flex items-center gap-2 font-medium"
+            style={{ transformStyle: 'preserve-3d' }}
+            whileHover={{ 
+              rotateY: 10,
+              rotateX: -5,
+              scale: 1.05,
+              z: 15
+            }}
           >
-            <Link className="w-4 h-4 text-sky-500" /> LinkedIn Profile
+            <Link className="w-4 h-4 text-yellow-400" /> LinkedIn Profile
           </a>
           <a
             href="https://elango-p.vercel.app/elango/profile"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-sky-600 transition-colors flex items-center gap-2 font-medium"
+            className="hover:text-yellow-300 transition-colors flex items-center gap-2 font-medium"
+            style={{ transformStyle: 'preserve-3d' }}
+            whileHover={{ 
+              rotateY: 10,
+              rotateX: -5,
+              scale: 1.05,
+              z: 15
+            }}
           >
-            <Globe className="w-4 h-4 text-sky-500" />
+            <Globe className="w-4 h-4 text-yellow-400" />
             Website
           </a>
         </div>
         <div className="mt-5 flex flex-wrap justify-center md:justify-start gap-2">
-          <span className="text-xs px-3 py-1 rounded-full bg-green-50 text-green-700 border border-green-200">Node.js</span>
-          <span className="text-xs px-3 py-1 rounded-full bg-gray-900 text-white border border-gray-800">Next.js</span>
-          <span className="text-xs px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">CSS</span>
-          <span className="text-xs px-3 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-200">HTML</span>
-          <span className="text-xs px-3 py-1 rounded-full bg-violet-50 text-violet-700 border border-violet-200">Bootstrap</span>
-          <span className="text-xs px-3 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">Tailwind CSS</span>
+          <motion.span className="text-xs px-3 py-1 rounded-full bg-green-50 text-green-700 border border-green-200"
+            style={{ transformStyle: 'preserve-3d' }}
+            whileHover={{ 
+              rotateY: 20,
+              rotateX: -15,
+              scale: 1.2,
+              z: 25
+            }}
+            whileTap={{ scale: 0.9 }}>Node.js</motion.span>
+          <motion.span className="text-xs px-3 py-1 rounded-full bg-gray-900 text-white border border-gray-800"
+            style={{ transformStyle: 'preserve-3d' }}
+            whileHover={{ 
+              rotateY: 20,
+              rotateX: -15,
+              scale: 1.2,
+              z: 25
+            }}
+            whileTap={{ scale: 0.9 }}>Next.js</motion.span>
+          <motion.span className="text-xs px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200"
+            style={{ transformStyle: 'preserve-3d' }}
+            whileHover={{ 
+              rotateY: 20,
+              rotateX: -15,
+              scale: 1.2,
+              z: 25
+            }}
+            whileTap={{ scale: 0.9 }}>CSS</motion.span>
+          <motion.span className="text-xs px-3 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-200"
+            style={{ transformStyle: 'preserve-3d' }}
+            whileHover={{ 
+              rotateY: 20,
+              rotateX: -15,
+              scale: 1.2,
+              z: 25
+            }}
+            whileTap={{ scale: 0.9 }}>HTML</motion.span>
+          <motion.span className="text-xs px-3 py-1 rounded-full bg-violet-50 text-violet-700 border border-violet-200"
+            style={{ transformStyle: 'preserve-3d' }}
+            whileHover={{ 
+              rotateY: 20,
+              rotateX: -15,
+              scale: 1.2,
+              z: 25
+            }}
+            whileTap={{ scale: 0.9 }}>Bootstrap</motion.span>
+          <motion.span className="text-xs px-3 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200"
+            style={{ transformStyle: 'preserve-3d' }}
+            whileHover={{ 
+              rotateY: 20,
+              rotateX: -15,
+              scale: 1.2,
+              z: 25
+            }}
+            whileTap={{ scale: 0.9 }}>Tailwind CSS</motion.span>
         </div>
 
         {/* Watermark: faint rotating tech stack badges (like React symbol) */}
@@ -170,35 +239,42 @@ const resolvedParams = React.use(params);
 
   const renderExperienceSection = (experience, fadeUp) => (
     <motion.section variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
-      <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-gray-800 border-b-2 border-sky-400 pb-3 mb-6">
-        <Briefcase className="w-6 h-6 text-sky-500" /> Experience
+      <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-white border-b-2 border-yellow-400 pb-3 mb-6">
+        <Briefcase className="w-6 h-6 text-yellow-400" /> Experience
       </h2>
       <div className="space-y-8">
         {experience.map((exp) => (
           <motion.div
             key={exp.id}
-            className="p-6 bg-white border-l-4 border-sky-500 shadow-md rounded-lg transition-shadow duration-300 hover:shadow-xl"
-            whileHover={{ x: 3 }}
+            className="p-6 bg-white/10 backdrop-blur-sm border-l-4 border-yellow-400 shadow-lg rounded-lg transition-all duration-300 hover:shadow-xl hover:bg-white/20"
+            style={{ transformStyle: 'preserve-3d' }}
+            whileHover={{ 
+              rotateY: 5, 
+              rotateX: -5,
+              scale: 1.02,
+              z: 50 
+            }}
+            whileTap={{ scale: 0.98 }}
           >
             <div className="flex justify-between items-start flex-wrap mb-1">
-              <h3 className="text-xl font-extrabold text-gray-900 leading-tight">{exp.role}</h3>
-              <p className="text-sm font-semibold text-gray-500 whitespace-nowrap pt-1">
+              <h3 className="text-xl font-extrabold text-white leading-tight drop-shadow-sm">{exp.role}</h3>
+              <p className="text-sm font-semibold text-yellow-200 whitespace-nowrap pt-1">
                 {exp.start_date} - {exp.end_date || "Present"}
               </p>
             </div>
-            <p className="text-lg font-medium text-sky-600">{exp.company_name}</p>
+            <p className="text-lg font-medium text-yellow-300">{exp.company_name}</p>
             
             {exp.bullet_points && exp.bullet_points.length > 0 ? (
-              <ul className="mt-4 text-gray-700 space-y-2">
+              <ul className="mt-4 text-white space-y-2">
                 {exp.bullet_points.map((point, index) => (
                   <li key={index} className="text-base flex items-start gap-2">
-                    <ListChecks className="w-4 h-4 mt-1 text-green-500 flex-shrink-0" />
+                    <ListChecks className="w-4 h-4 mt-1 text-green-400 flex-shrink-0" />
                     <span className="leading-relaxed">{point}</span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="mt-3 text-gray-700 leading-relaxed">{exp.description}</p>
+              <p className="mt-3 text-white leading-relaxed">{exp.description}</p>
             )}
           </motion.div>
         ))}
@@ -208,15 +284,23 @@ const resolvedParams = React.use(params);
 
   const renderProjectsSection = (projects, fadeUp) => (
     <motion.section variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
-      <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-gray-800 border-b-2 border-sky-400 pb-3 mb-6">
-        <Code className="w-6 h-6 text-sky-500" /> Projects
+      <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-white border-b-2 border-yellow-400 pb-3 mb-6">
+        <Code className="w-6 h-6 text-yellow-400" /> Projects
       </h2>
       <div className="grid md:grid-cols-2 gap-8">
         {projects.map((proj) => (
           <motion.div
             key={proj.id}
-            className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl hover:border-sky-300"
-            whileHover={{ y: -4 }}
+            className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl hover:border-yellow-300 hover:bg-white/20"
+            style={{ transformStyle: 'preserve-3d' }}
+            whileHover={{ 
+              rotateY: -8,
+              rotateX: 5,
+              scale: 1.05,
+              z: 100,
+              y: -8
+            }}
+            whileTap={{ scale: 0.95 }}
           >
             {proj.image_url ? (
                 <img src={proj.image_url} alt={proj.title} className="w-full h-40 object-cover border-b border-gray-200" />
@@ -226,10 +310,10 @@ const resolvedParams = React.use(params);
             
             <div className="p-5">
               <div className="flex justify-between items-start">
-                <h3 className="font-extrabold text-xl text-sky-700 mb-2">{proj.title}</h3>
+                <h3 className="font-extrabold text-xl text-yellow-300 mb-2 drop-shadow-sm">{proj.title}</h3>
                 <a 
                   href={`/projects/${proj.id}`}
-                  className="text-gray-400 hover:text-sky-600 transition-colors"
+                  className="text-white/60 hover:text-yellow-300 transition-colors"
                   title="View Project Details"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -240,27 +324,27 @@ const resolvedParams = React.use(params);
               </div>
               
               {proj.details && proj.details.length > 0 ? (
-                <ul className="mt-3 text-gray-600 space-y-1">
+                <ul className="mt-3 text-white/90 space-y-1">
                   {proj.details.map((detail, index) => (
                     <li key={index} className="text-sm flex items-start gap-2">
-                      <span className="text-sky-500 font-bold flex-shrink-0">•</span>
+                      <span className="text-yellow-400 font-bold flex-shrink-0">•</span>
                       {detail}
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="text-gray-600 text-sm">{proj.description}</p>
+                <p className="text-white/80 text-sm">{proj.description}</p>
               )}
               {Array.isArray(proj.skills) && proj.skills.length > 0 ? (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {proj.skills.map((s, idx) => (
-                    <motion.span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>{s}</motion.span>
+                    <motion.span key={idx} className="text-xs px-2 py-1 bg-yellow-400/20 text-yellow-200 rounded-full border border-yellow-400/30" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>{s}</motion.span>
                   ))}
                 </div>
               ) : Array.isArray(proj.tech_stack) && proj.tech_stack.length > 0 ? (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {proj.tech_stack.map((s, idx) => (
-                    <motion.span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>{s}</motion.span>
+                    <motion.span key={idx} className="text-xs px-2 py-1 bg-yellow-400/20 text-yellow-200 rounded-full border border-yellow-400/30" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>{s}</motion.span>
                   ))}
                 </div>
               ) : (typeof proj.tech_stack === 'string' && proj.tech_stack.trim()) ? (
@@ -269,7 +353,7 @@ const resolvedParams = React.use(params);
                     const label = s.trim();
                     if (!label) return null;
                     return (
-                      <motion.span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>{label}</motion.span>
+                      <motion.span key={idx} className="text-xs px-2 py-1 bg-yellow-400/20 text-yellow-200 rounded-full border border-yellow-400/30" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>{label}</motion.span>
                     );
                   })}
                 </div>
@@ -283,16 +367,23 @@ const resolvedParams = React.use(params);
   );
 
   const renderSkillsSection = (skills, fadeUp) => (
-    <motion.section variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-      <h2 className="flex items-center gap-3 text-2xl font-bold tracking-tight text-gray-800 border-b border-sky-400 pb-3 mb-5">
-        <Zap className="w-5 h-5 text-sky-500" /> Core Skills
+    <motion.section variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="bg-white/10 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-white/20">
+      <h2 className="flex items-center gap-3 text-2xl font-bold tracking-tight text-white border-b border-yellow-400 pb-3 mb-5">
+        <Zap className="w-5 h-5 text-yellow-400" /> Core Skills
       </h2>
       <div className="flex flex-wrap gap-3">
         {skills.map((s) => (
           <motion.span
             key={s.id}
-            className="px-3 py-1 bg-sky-50 text-sky-700 rounded-full font-semibold text-sm border border-sky-200 shadow-sm transition-colors"
-            whileHover={{ scale: 1.05, backgroundColor: '#e0f2fe' }}
+            className="px-3 py-1 bg-yellow-400/20 text-yellow-200 rounded-full font-semibold text-sm border border-yellow-400/30 shadow-sm transition-colors hover:bg-yellow-400/30"
+            style={{ transformStyle: 'preserve-3d' }}
+            whileHover={{ 
+              rotateY: 15,
+              rotateX: -10,
+              scale: 1.1,
+              z: 30
+            }}
+            whileTap={{ scale: 0.95 }}
           >
             {s.skill_name}
           </motion.span>
@@ -302,20 +393,27 @@ const resolvedParams = React.use(params);
   );
 
   const renderEducationSection = (education, fadeUp) => (
-    <motion.section variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-      <h2 className="flex items-center gap-3 text-2xl font-bold tracking-tight text-gray-800 border-b border-sky-400 pb-3 mb-5">
-        <GraduationCap className="w-5 h-5 text-sky-500" /> Education
+    <motion.section variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="bg-white/10 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-white/20">
+      <h2 className="flex items-center gap-3 text-2xl font-bold tracking-tight text-white border-b border-yellow-400 pb-3 mb-5">
+        <GraduationCap className="w-5 h-5 text-yellow-400" /> Education
       </h2>
       <div className="space-y-4">
         {education.map((ed) => (
           <motion.div
             key={ed.id}
-            className="p-3 bg-gray-50 rounded-lg border border-gray-200 transition-shadow hover:shadow-md"
-            whileHover={{ scale: 1.02 }}
+            className="p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 transition-shadow hover:shadow-md hover:bg-white/20"
+            style={{ transformStyle: 'preserve-3d' }}
+            whileHover={{ 
+              rotateX: 5,
+              rotateY: -5,
+              scale: 1.03,
+              z: 20
+            }}
+            whileTap={{ scale: 0.98 }}
           >
-            <h3 className="text-lg font-bold text-gray-800 leading-tight">{ed.degree}</h3>
-            <p className="text-gray-700 text-sm font-medium">{ed.institute}</p>
-            <p className="text-xs text-gray-500 mt-1">
+            <h3 className="text-lg font-bold text-white leading-tight drop-shadow-sm">{ed.degree}</h3>
+            <p className="text-white/80 text-sm font-medium">{ed.institute}</p>
+            <p className="text-xs text-yellow-200 mt-1">
               {ed.start_year} - {ed.end_year}
             </p>
           </motion.div>
@@ -327,7 +425,19 @@ const resolvedParams = React.use(params);
   // --- Main Render ---
 
   return (
-   <div className="relative min-h-screen p-4 sm:p-8    from-slate-50 via-white to-indigo-50 dark:from-slate-900 dark:via-slate-950 dark:to-indigo-950 overflow-hidden">
+    <>
+      <style jsx>{`
+        @keyframes gradient-shift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .animate-gradient-shift {
+          background-size: 400% 400%;
+          animation: gradient-shift 8s ease infinite;
+        }
+      `}</style>
+   <div className="relative min-h-screen p-4 sm:p-8 overflow-hidden bg-gradient-to-br from-violet-600 via-indigo-500 to-purple-600 animate-gradient-shift" style={{ perspective: '2000px' }}>
       <motion.svg
         aria-hidden
         viewBox="0 0 841.9 595.3"
@@ -348,47 +458,118 @@ const resolvedParams = React.use(params);
         </g>
         <circle cx="420.9" cy="296.5" r="18" fill="url(#reactGrad)" />
       </motion.svg>
-      {/* Decorative gradient accents for professional look */}
+      {/* Enhanced floating gradient orbs with more vibrant colors */}
       <motion.div
         aria-hidden
-        className="pointer-events-none absolute -top-24 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-sky-300 via-indigo-300 to-purple-300 opacity-30 blur-3xl dark:opacity-20"
-        animate={{ y: [0, -15, 0], rotate: [0, 8, 0] }}
-        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+        className="pointer-events-none absolute -top-24 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-pink-400 via-purple-400 to-indigo-400 opacity-40 blur-3xl"
+        animate={{ y: [0, -30, 0], rotate: [0, 15, 0], scale: [1, 1.2, 1] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
         aria-hidden
-        className="pointer-events-none absolute -bottom-24 -right-20 h-80 w-80 rounded-full bg-gradient-to-br from-rose-300 via-amber-300 to-emerald-300 opacity-30 blur-3xl dark:opacity-20"
-        animate={{ y: [0, 18, 0], rotate: [0, -10, 0] }}
-        transition={{ duration: 16, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
-      />
-
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute top-1/3 -left-24 h-56 w-56 rounded-full bg-gradient-to-br from-emerald-300 via-teal-300 to-cyan-300 opacity-25 blur-3xl dark:opacity-15"
-        animate={{ scale: [1, 1.08, 1], opacity: [0.25, 0.35, 0.25] }}
-        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
+        className="pointer-events-none absolute -bottom-24 -right-20 h-80 w-80 rounded-full bg-gradient-to-br from-yellow-400 via-orange-400 to-red-400 opacity-40 blur-3xl"
+        animate={{ y: [0, 30, 0], rotate: [0, -15, 0], scale: [1, 1.15, 1] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
       />
 
       <motion.div
         aria-hidden
-        className="pointer-events-none absolute top-1/4 -right-20 h-64 w-64 rounded-full bg-gradient-to-br from-fuchsia-300 via-pink-300 to-rose-300 opacity-20 blur-3xl dark:opacity-15"
-        animate={{ scale: [1, 1.06, 1], y: [0, -12, 0] }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+        className="pointer-events-none absolute top-1/3 -left-24 h-56 w-56 rounded-full bg-gradient-to-br from-green-400 via-teal-400 to-cyan-400 opacity-35 blur-3xl"
+        animate={{ scale: [1, 1.3, 1], opacity: [0.35, 0.5, 0.35], x: [0, 20, 0] }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 1 }}
       />
 
       <motion.div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.06),transparent_60%)]"
-        animate={{ opacity: [0.25, 0.4, 0.25] }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        className="pointer-events-none absolute top-1/4 -right-20 h-64 w-64 rounded-full bg-gradient-to-br from-blue-400 via-violet-400 to-purple-400 opacity-30 blur-3xl"
+        animate={{ scale: [1, 1.25, 1], y: [0, -25, 0], rotate: [0, 20, 0] }}
+        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+      />
+
+      {/* Additional floating 3D particles */}
+      {[...Array(8)].map((_, i) => (
+        <motion.div
+          key={`particle-${i}`}
+          aria-hidden
+          className="pointer-events-none absolute h-6 w-6 rounded-full bg-gradient-to-r from-pink-400 to-yellow-400 opacity-70"
+          style={{
+            left: `${15 + i * 12}%`,
+            top: `${8 + i * 10}%`,
+            transformStyle: 'preserve-3d',
+          }}
+          animate={{
+            y: [0, -150, 0],
+            x: [0, 80, -80, 0],
+            z: [0, 200, 0],
+            opacity: [0.7, 1, 0.7],
+            scale: [1, 1.8, 1],
+            rotateX: [0, 360, 0],
+            rotateY: [0, 180, 0],
+            rotateZ: [0, 90, 0],
+          }}
+          transition={{
+            duration: 10 + i * 1.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: i * 0.3,
+          }}
+        />
+      ))}
+
+      {/* 3D floating geometric shapes */}
+      {[...Array(4)].map((_, i) => (
+        <motion.div
+          key={`shape-${i}`}
+          aria-hidden
+          className="pointer-events-none absolute"
+          style={{
+            left: `${25 + i * 20}%`,
+            top: `${20 + i * 15}%`,
+            transformStyle: 'preserve-3d',
+          }}
+          animate={{
+            rotateX: [0, 360],
+            rotateY: [0, 360],
+            rotateZ: [0, 180],
+            scale: [1, 1.2, 1],
+            z: [0, 100, 0],
+          }}
+          transition={{
+            duration: 15 + i * 2,
+            repeat: Infinity,
+            ease: "linear",
+            delay: i * 0.8,
+          }}
+        >
+          <div className={`w-8 h-8 ${i % 2 === 0 ? 'bg-gradient-to-br from-cyan-400 to-blue-500' : 'bg-gradient-to-br from-purple-400 to-pink-500'} opacity-60`}></div>
+        </motion.div>
+      ))}
+
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.1),transparent_70%)]"
+        animate={{ opacity: [0.1, 0.3, 0.1] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
       />
 
       <motion.div
-        className="max-w-7xl mx-auto bg-white shadow-2xl rounded-2xl p-6 md:p-12 border border-gray-200"
+        className="max-w-7xl mx-auto bg-white/10 backdrop-blur-md shadow-2xl rounded-2xl p-6 md:p-12 border border-white/20"
         initial="hidden"
         animate="visible"
         variants={{
           visible: { transition: { staggerChildren: 0.15 } },
+        }}
+        style={{ 
+          transformStyle: 'preserve-3d',
+          animate: {
+            rotateY: [0, 2, 0],
+            rotateX: [0, 1, 0],
+          },
+          transition: {
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }
         }}
       >
         <div className="space-y-10">
@@ -416,5 +597,6 @@ const resolvedParams = React.use(params);
 
       </motion.div>
     </div>
+    </>
   );
 }

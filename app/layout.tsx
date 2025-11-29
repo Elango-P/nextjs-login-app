@@ -29,9 +29,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased relative min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200`}>
         <ThemeProvider>
-          <div className="fixed inset-0 -z-10">
-            <ParticlesBackground />
-          </div>
+         
           <div className="relative z-10">
             {children}
              <Analytics />
