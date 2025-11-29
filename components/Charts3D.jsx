@@ -5,25 +5,33 @@ import { Box, Cylinder, Cone, Text as Text3DComponent, Float, Sparkles, Environm
 import { useRef, useState, useEffect } from 'react';
 import * as THREE from 'three';
 
-// Professional 3D Bar Chart Component
+// Enhanced 3D Bar Chart Component
 function Bar3D({ value, color, position, label, height = 2, index }) {
   const [hovered, setHovered] = useState(false);
   const [time, setTime] = useState(0);
+  const [pulseScale, setPulseScale] = useState(1);
   const actualHeight = (value / 100) * height;
   
   useEffect(() => {
-    const interval = setInterval(() => setTime(t => t + 0.05), 50);
+    const interval = setInterval(() => setTime(t => t + 0.04), 60);
     return () => clearInterval(interval);
+  }, []);
+  
+  useEffect(() => {
+    const pulseInterval = setInterval(() => {
+      setPulseScale(1 + Math.sin(Date.now() * 0.004) * 0.08);
+    }, 40);
+    return () => clearInterval(pulseInterval);
   }, []);
   
   return (
     <group position={position}>
-      {/* Glow effect */}
+      {/* Enhanced glow effect with pulse */}
       <mesh
         position={[0, actualHeight / 2, 0]}
-        scale={hovered ? [1.5, 1.2, 1.5] : [1.2, 1, 1.2]}
+        scale={hovered ? [1.5, 1.3, 1.5] : [1.3, 1.1, 1.3]}
       >
-        <cylinderGeometry args={[0.6, 0.6, 0.1, 16]} />
+        <cylinderGeometry args={[0.6, 0.6, 0.12, 20]} />
         <meshBasicMaterial 
           color={color} 
           transparent 
@@ -31,67 +39,101 @@ function Bar3D({ value, color, position, label, height = 2, index }) {
         />
       </mesh>
       
+      {/* Energy ring */}
+      <mesh
+        position={[0, actualHeight / 2, 0]}
+        rotation={[0, 0, time * 0.6]}
+        scale={hovered ? [1.2, 1.2, 1.2] : [1, 1, 1]}
+      >
+        <ringGeometry args={[0.5, 0.7, 20]} />
+        <meshBasicMaterial 
+          color={color} 
+          transparent 
+          opacity={hovered ? 0.5 : 0.3}
+        />
+      </mesh>
+      
       {/* Enhanced Bar */}
-      <Float speed={hovered ? 3 : 1} rotationIntensity={0.2} floatIntensity={0.5}>
+      <Float speed={hovered ? 2.5 : 1} rotationIntensity={0.3} floatIntensity={0.6}>
         <mesh
           position={[0, actualHeight / 2, 0]}
           onPointerOver={() => setHovered(true)}
           onPointerOut={() => setHovered(false)}
-          scale={hovered ? [1.15, 1.1, 1.15] : [1, 1, 1]}
-          rotation={[0, time * 0.5, 0]}
+          scale={hovered ? [1.15, 1.1, 1.15] : [pulseScale, 1, pulseScale]}
+          rotation={[0, time * 0.4, 0]}
         >
-          <boxGeometry args={[0.8, actualHeight, 0.8]} />
-          <meshPhysicalMaterial 
+          <boxGeometry args={[0.9, actualHeight, 0.9]} />
+          <meshStandardMaterial 
             color={color} 
-            metalness={0.8} 
-            roughness={0.15}
-            clearcoat={1.0}
-            clearcoatRoughness={0.1}
-            envMapIntensity={2}
+            metalness={0.7} 
+            roughness={0.25}
+            envMapIntensity={1.8}
             emissive={hovered ? color : '#000000'}
-            emissiveIntensity={hovered ? 0.4 : 0.1}
+            emissiveIntensity={hovered ? 0.4 : 0.15}
           />
         </mesh>
       </Float>
       
       {/* Enhanced Base */}
       <mesh position={[0, -0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[0.6, 0.6, 0.15, 32]} />
-        <meshPhysicalMaterial 
+        <cylinderGeometry args={[0.6, 0.6, 0.18, 20]} />
+        <meshStandardMaterial 
           color="#1e293b" 
-          metalness={0.7} 
-          roughness={0.3}
+          metalness={0.6} 
+          roughness={0.4}
           envMapIntensity={1}
         />
       </mesh>
       
-      {/* Floating particles around bar */}
-      {Array.from({ length: 4 }, (_, i) => {
-        const angle = (i / 4) * Math.PI * 2 + time * 2;
+      {/* Enhanced floating particles with trails */}
+      {Array.from({ length: 3 }, (_, i) => {
+        const angle = (i / 3) * Math.PI * 2 + time * 2;
         const radius = 0.6;
         return (
-          <mesh
-            key={i}
-            position={[
-              Math.cos(angle) * radius,
-              actualHeight * (0.2 + i * 0.2),
-              Math.sin(angle) * radius
-            ]}
-          >
-            <sphereGeometry args={[0.02, 8, 8]} />
-            <meshBasicMaterial color={color} opacity={0.8} transparent />
-          </mesh>
+          <group key={i}>
+            {/* Particle trail */}
+            <mesh
+              position={[
+                Math.cos(angle - 0.3) * radius * 0.7,
+                actualHeight * (0.2 + i * 0.25),
+                Math.sin(angle - 0.3) * radius * 0.7
+              ]}
+            >
+              <sphereGeometry args={[0.015, 8, 8]} />
+              <meshBasicMaterial color={color} opacity={0.3} transparent />
+            </mesh>
+            {/* Main particle */}
+            <mesh
+              position={[
+                Math.cos(angle) * radius,
+                actualHeight * (0.3 + i * 0.3),
+                Math.sin(angle) * radius
+              ]}
+              scale={hovered ? [1.4, 1.4, 1.4] : [1, 1, 1]}
+            >
+              <sphereGeometry args={[0.025, 10, 10]} />
+              <meshBasicMaterial 
+                color={hovered ? '#ffffff' : color} 
+                opacity={hovered ? 0.9 : 0.8} 
+                transparent 
+              />
+            </mesh>
+          </group>
         );
       })}
       
       {/* Enhanced Label */}
-      <group position={[0, -0.8, 0]}>
-        <mesh position={[0, 0.2, -0.1]}>
-          <planeGeometry args={[1.2, 0.4]} />
-          <meshBasicMaterial 
+      <group position={[0, -0.7, 0]}>
+        {/* Label background */}
+        <mesh position={[0, 0.18, -0.1]}>
+          <planeGeometry args={[1.2, 0.35]} />
+          <meshStandardMaterial 
             color={color} 
-            opacity={0.3} 
-            transparent 
+            metalness={0.3} 
+            roughness={0.4}
+            envMapIntensity={1}
+            transparent
+            opacity={hovered ? 0.25 : 0.15}
           />
         </mesh>
         <Text3DComponent
@@ -108,15 +150,18 @@ function Bar3D({ value, color, position, label, height = 2, index }) {
       {hovered && (
         <group position={[0, actualHeight + 0.8, 0]}>
           <mesh position={[0, 0, -0.1]}>
-            <planeGeometry args={[1, 0.4]} />
-            <meshBasicMaterial 
+            <planeGeometry args={[0.9, 0.35]} />
+            <meshStandardMaterial 
               color="#fbbf24" 
-              opacity={0.8} 
+              metalness={0.5}
+              roughness={0.3}
+              envMapIntensity={1.5}
+              opacity={0.9} 
               transparent 
             />
           </mesh>
           <Text3DComponent
-            fontSize={0.22}
+            fontSize={0.2}
             color="#000000"
             anchorX="center"
             anchorY="middle"
@@ -129,66 +174,103 @@ function Bar3D({ value, color, position, label, height = 2, index }) {
   );
 }
 
-// Professional 3D Line Chart Points
+// Enhanced 3D Line Chart Points
 function LinePoint3D({ position, value, color, label, index }) {
   const [hovered, setHovered] = useState(false);
   const [time, setTime] = useState(0);
+  const [pulseScale, setPulseScale] = useState(1);
   
   useEffect(() => {
-    const interval = setInterval(() => setTime(t => t + 0.05), 50);
+    const interval = setInterval(() => setTime(t => t + 0.04), 60);
     return () => clearInterval(interval);
   }, []);
   
+  useEffect(() => {
+    const pulseInterval = setInterval(() => {
+      setPulseScale(1 + Math.sin(Date.now() * 0.005 + index) * 0.1);
+    }, 40);
+    return () => clearInterval(pulseInterval);
+  }, [index]);
+  
   return (
     <group position={position}>
-      {/* Glow effect */}
-      <mesh scale={hovered ? [2, 2, 2] : [1.5, 1.5, 1.5]}>
-        <sphereGeometry args={[0.15, 16, 16]} />
+      {/* Enhanced glow effect with pulse */}
+      <mesh scale={hovered ? [1.8, 1.8, 1.8] : [1.5, 1.5, 1.5]}>
+        <sphereGeometry args={[0.15, 20, 20]} />
         <meshBasicMaterial 
           color={color} 
           transparent 
-          opacity={hovered ? 0.3 : 0.15}
+          opacity={hovered ? 0.4 : 0.2}
+        />
+      </mesh>
+      
+      {/* Energy ring */}
+      <mesh 
+        rotation={[0, 0, time * 0.8]}
+        scale={hovered ? [1.3, 1.3, 1.3] : [1.1, 1.1, 1.1]}
+      >
+        <ringGeometry args={[0.2, 0.3, 16]} />
+        <meshBasicMaterial 
+          color={color} 
+          transparent 
+          opacity={hovered ? 0.6 : 0.3}
         />
       </mesh>
       
       {/* Enhanced Point */}
-      <Float speed={2} rotationIntensity={1} floatIntensity={0.5}>
+      <Float speed={2} rotationIntensity={1} floatIntensity={0.6}>
         <mesh
           onPointerOver={() => setHovered(true)}
           onPointerOut={() => setHovered(false)}
-          scale={hovered ? 1.8 : 1}
-          rotation={[time * 0.3, time * 0.5, 0]}
+          scale={hovered ? 1.6 : pulseScale}
+          rotation={[time * 0.3, time * 0.4, 0]}
         >
           <octahedronGeometry args={[0.12]} />
-          <meshPhysicalMaterial 
+          <meshStandardMaterial 
             color={color} 
-            metalness={0.9} 
-            roughness={0.1}
-            clearcoat={1.0}
-            clearcoatRoughness={0.1}
-            envMapIntensity={2}
+            metalness={0.75} 
+            roughness={0.25}
+            envMapIntensity={1.8}
             emissive={color}
-            emissiveIntensity={0.3}
+            emissiveIntensity={hovered ? 0.5 : 0.25}
           />
         </mesh>
       </Float>
       
-      {/* Orbiting particles */}
+      {/* Enhanced orbiting particles with trails */}
       {Array.from({ length: 3 }, (_, i) => {
-        const angle = (i / 3) * Math.PI * 2 + time * 3;
+        const angle = (i / 3) * Math.PI * 2 + time * 2.5;
         const radius = 0.3;
         return (
-          <mesh
-            key={i}
-            position={[
-              Math.cos(angle) * radius,
-              Math.sin(angle) * radius,
-              0
-            ]}
-          >
-            <sphereGeometry args={[0.02, 8, 8]} />
-            <meshBasicMaterial color={color} opacity={0.9} transparent />
-          </mesh>
+          <group key={i}>
+            {/* Particle trail */}
+            <mesh
+              position={[
+                Math.cos(angle - 0.2) * radius * 0.7,
+                Math.sin(angle - 0.2) * radius * 0.7,
+                0
+              ]}
+            >
+              <sphereGeometry args={[0.01, 6, 6]} />
+              <meshBasicMaterial color={color} opacity={0.3} transparent />
+            </mesh>
+            {/* Main particle */}
+            <mesh
+              position={[
+                Math.cos(angle) * radius,
+                Math.sin(angle) * radius,
+                0
+              ]}
+              scale={hovered ? [1.5, 1.5, 1.5] : [1, 1, 1]}
+            >
+              <sphereGeometry args={[0.025, 8, 8]} />
+              <meshBasicMaterial 
+                color={hovered ? '#ffffff' : color} 
+                opacity={hovered ? 0.9 : 0.8} 
+                transparent 
+              />
+            </mesh>
+          </group>
         );
       })}
       
@@ -196,10 +278,13 @@ function LinePoint3D({ position, value, color, label, index }) {
       {hovered && (
         <group position={[0, 0.8, 0]}>
           <mesh position={[0, 0, -0.1]}>
-            <planeGeometry args={[1.5, 0.4]} />
-            <meshBasicMaterial 
+            <planeGeometry args={[1.4, 0.35]} />
+            <meshStandardMaterial 
               color="#ffffff" 
-              opacity={0.9} 
+              metalness={0.3}
+              roughness={0.3}
+              envMapIntensity={1.5}
+              opacity={0.95} 
               transparent 
             />
           </mesh>
@@ -217,8 +302,15 @@ function LinePoint3D({ position, value, color, label, index }) {
   );
 }
 
-// Professional 3D Chart Container
+// Enhanced 3D Chart Container
 export default function Charts3D({ projects }) {
+  const [globalTime, setGlobalTime] = useState(0);
+  
+  useEffect(() => {
+    const interval = setInterval(() => setGlobalTime(t => t + 0.03), 50);
+    return () => clearInterval(interval);
+  }, []);
+  
   // Generate sample data based on projects
   const barData = projects.slice(0, 5).map((project, index) => ({
     label: project.title?.substring(0, 8) || `P${index + 1}`,
@@ -229,57 +321,54 @@ export default function Charts3D({ projects }) {
   const lineData = projects.slice(0, 6).map((project, index) => ({
     label: project.title?.substring(0, 6) || `P${index + 1}`,
     value: Math.floor(Math.random() * 50) + 30,
-    position: [(index - 2.5) * 1.5, (Math.random() * 2) - 1, 0]
+    position: [(index - 2.5) * 1.6, (Math.random() * 2) - 1, 0]
   }));
 
   return (
     <div className="w-full h-80 relative">
       <Canvas camera={{ position: [0, 3, 12], fov: 60 }}>
-        {/* Professional lighting setup */}
-        <ambientLight intensity={0.3} />
-        <directionalLight position={[10, 10, 5]} intensity={1.5} castShadow />
+        {/* Enhanced lighting setup */}
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[10, 10, 5]} intensity={1.4} />
         <pointLight position={[-10, -10, -5]} intensity={0.8} color="#3b82f6" />
         <pointLight position={[10, -10, 5]} intensity={0.6} color="#10b981" />
-        <spotLight position={[0, 10, 0]} intensity={0.7} angle={0.3} penumbra={1} />
         
-        {/* Environment and effects */}
-        <Environment preset="city" background={false} />
-        <Stars radius={100} depth={50} count={4000} factor={4} saturation={0} fade speed={1} />
+        {/* Enhanced base platform with grid */}
+        <group>
+          {/* Main platform */}
+          <mesh position={[0, -0.5, -2]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[24, 14]} />
+            <meshStandardMaterial 
+              color="#1f2937" 
+              metalness={0.3} 
+              roughness={0.7}
+              envMapIntensity={0.5}
+            />
+          </mesh>
+          
+          {/* Grid lines */}
+          {Array.from({ length: 7 }, (_, i) => (
+            <mesh
+              key={`h-${i}`}
+              position={[0, -0.48, -6 + i * 2]}
+              rotation={[-Math.PI / 2, 0, 0]}
+            >
+              <planeGeometry args={[24, 0.04]} />
+              <meshBasicMaterial color="#374151" opacity={0.4} transparent />
+            </mesh>
+          ))}
+        </group>
         
-        {/* Enhanced base platform */}
-        <mesh position={[0, -0.5, -2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-          <planeGeometry args={[20, 12]} />
-          <meshPhysicalMaterial 
-            color="#0f172a" 
-            metalness={0.8} 
-            roughness={0.2}
-            envMapIntensity={2}
-          />
-        </mesh>
-        
-        {/* Glass platform */}
-        <mesh position={[0, -0.3, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-          <planeGeometry args={[15, 10]} />
-          <meshPhysicalMaterial 
-            color="#1e293b" 
-            metalness={0.1} 
-            roughness={0.1}
-            transmission={0.8}
-            thickness={0.5}
-            envMapIntensity={2}
-          />
-        </mesh>
-        
-        {/* Professional 3D Bar Chart */}
-        <group position={[-4, 0, 0]}>
+        {/* Enhanced 3D Bar Chart */}
+        <group position={[-4.5, 0, 0]}>
           {barData.map((data, index) => (
             <Bar3D
               key={index}
               value={data.value}
               color={data.color}
-              position={[(index - 2) * 1.5, 0, 0]}
+              position={[(index - 2) * 1.6, 0, 0]}
               label={data.label}
-              height={3.5}
+              height={3.8}
               index={index}
             />
           ))}
@@ -287,9 +376,12 @@ export default function Charts3D({ projects }) {
           {/* Enhanced Chart title */}
           <group position={[0, 4.5, 0]}>
             <mesh position={[0, 0, -0.1]}>
-              <planeGeometry args={[3, 0.8]} />
-              <meshBasicMaterial 
+              <planeGeometry args={[2.8, 0.7]} />
+              <meshStandardMaterial 
                 color="#3b82f6" 
+                metalness={0.3}
+                roughness={0.4}
+                envMapIntensity={1.5}
                 opacity={0.3} 
                 transparent 
               />
@@ -305,8 +397,8 @@ export default function Charts3D({ projects }) {
           </group>
         </group>
         
-        {/* Professional 3D Line Chart */}
-        <group position={[4, 0, 0]}>
+        {/* Enhanced 3D Line Chart */}
+        <group position={[4.5, 0, 0]}>
           {/* Enhanced connecting lines */}
           {lineData.slice(0, -1).map((point, index) => {
             const nextPoint = lineData[index + 1];
@@ -343,9 +435,12 @@ export default function Charts3D({ projects }) {
           {/* Enhanced Chart title */}
           <group position={[0, 4.5, 0]}>
             <mesh position={[0, 0, -0.1]}>
-              <planeGeometry args={[3, 0.8]} />
-              <meshBasicMaterial 
+              <planeGeometry args={[2.8, 0.7]} />
+              <meshStandardMaterial 
                 color="#10b981" 
+                metalness={0.3}
+                roughness={0.4}
+                envMapIntensity={1.5}
                 opacity={0.3} 
                 transparent 
               />
@@ -361,34 +456,36 @@ export default function Charts3D({ projects }) {
           </group>
         </group>
         
-        {/* Professional particle system */}
+        {/* Enhanced particle system */}
         <Sparkles 
           count={120} 
-          scale={[18, 8, 12]} 
+          scale={[20, 10, 14]} 
           size={2.5} 
-          speed={0.6} 
+          speed={0.7} 
           opacity={0.7} 
           color="#ffffff"
         />
         
-        {/* Floating data particles */}
-        {Array.from({ length: 25 }, (_, i) => (
-          <Float key={i} speed={Math.random() * 2 + 0.5} rotationIntensity={0.5} floatIntensity={1}>
+        {/* Enhanced floating particles */}
+        {Array.from({ length: 18 }, (_, i) => (
+          <Float key={i} speed={Math.random() * 2 + 0.8} rotationIntensity={1} floatIntensity={1.8}>
             <mesh
               position={[
-                (Math.random() - 0.5) * 16,
-                Math.random() * 5,
-                (Math.random() - 0.5) * 10
+                (Math.random() - 0.5) * 18,
+                Math.random() * 6,
+                (Math.random() - 0.5) * 12
               ]}
               rotation={[Math.random() * Math.PI, Math.random() * Math.PI, 0]}
             >
               {[<octahedronGeometry args={[0.08]} />, <tetrahedronGeometry args={[0.06]} />, <icosahedronGeometry args={[0.05]} />][Math.floor(Math.random() * 3)]}
-              <meshPhysicalMaterial 
+              <meshStandardMaterial 
                 color="#ffffff" 
-                metalness={0.9} 
-                roughness={0.1}
-                transmission={0.5}
-                envMapIntensity={3}
+                metalness={0.8} 
+                roughness={0.2}
+                opacity={0.8}
+                transparent
+                emissive="#ffffff"
+                emissiveIntensity={0.1}
               />
             </mesh>
           </Float>
