@@ -114,16 +114,14 @@ export default function PublicProfile({ params }) {
   // --- Enhanced Hero / Intro ---
   // =========================================================================
   const Hero = () => (
-    <section className="relative py-20 lg:py-32">
+    <section className="relative">
       <div className="mx-auto grid lg:grid-cols-5 gap-12 items-center">
         {/* Left: Text + Buttons + small code box (Spans 3/5) */}
         <div className="lg:col-span-3 space-y-8">
           <h2 className="text-5xl md:text-6xl font-extrabold text-white leading-tight">
             Hello, I'm <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6ee7b7] to-[#60a5fa]">{profile.display_name || profile.full_name}</span>
           </h2>
-          <h1 className="text-3xl font-semibold text-[#7c3aed] tracking-wide relative inline-block before:block before:absolute before:-inset-1 before:bg-[#7c3aed]/10 before:rounded-lg before:skew-y-1">
-            <span className="relative text-white">{profile.role || 'Professional Full Stack Developer'}</span>
-          </h1>
+          
           <p className="text-gray-300 max-w-xl text-lg leading-relaxed">{profile.tagline || profile.bio || 'Full stack engineer passionate about building beautiful, accessible and high-performance web applications.'}</p>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-6">
@@ -201,7 +199,7 @@ export default function PublicProfile({ params }) {
   // --- Enhanced About / Who I am ---
   // =========================================================================
   const About = () => (
-    <section className="mx-auto py-12 lg:py-20 border-t border-[#122033]">
+    <section className="mx-auto py-12 lg:py-20 ">
 
       {/* Main Section Header - Centered and stylized */}
       <h2 className="text-4xl lg:text-5xl text-white font-extrabold mb-12 text-center tracking-wider relative">
