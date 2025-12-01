@@ -55,7 +55,9 @@ function DashboardContent() {
   const [education, setEducation] = useState([]);
   const [skills, setSkills] = useState([]);
   const [address, setAddress] = useState(null);
+  const [freelanceRequests, setFreelanceRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updatingStatus, setUpdatingStatus] = useState(null);
 
   // UI state / modals
   const [editOpen, setEditOpen] = useState(false);
@@ -185,6 +187,13 @@ function DashboardContent() {
         .select("*")
         .eq("user_id", user.id);
       setSkills(sks || []);
+
+      // load freelance requests
+      const { data: requests } = await supabase
+        .from("freelance_requests")
+        .select("*")
+        .order("created_at", { ascending: false });
+      setFreelanceRequests(requests || []);
 
       // load address (single row)
     //   const { data: addr } = await supabase
@@ -591,6 +600,37 @@ const uploadFile = async (file) => {
     }
   };
 
+  const deleteFreelanceRequest = async (id) => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.from("freelance_requests").delete().eq("id", id);
+      if (error) throw error;
+      setFreelanceRequests((list) => list.filter((x) => x.id !== id));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateRequestStatus = async (id, newStatus) => {
+    setUpdatingStatus(id);
+    try {
+      const { error } = await supabase
+        .from("freelance_requests")
+        .update({ status: newStatus })
+        .eq("id", id);
+      if (error) throw error;
+      setFreelanceRequests((list) =>
+        list.map((req) => (req.id === id ? { ...req, status: newStatus } : req))
+      );
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setUpdatingStatus(null);
+    }
+  };
+
   // ---------------------------------------------------------
   // ADDRESS CRUD (single row)
   // ---------------------------------------------------------
@@ -875,6 +915,171 @@ education.forEach((e) => {
             {/* <ThemeSelector /> */}
           </div>
         </div>
+{/* FREELANCE REQUESTS */}
+        <section className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow space-y-6">
+  {/* Header */}
+  <div className="flex justify-between items-center flex-wrap gap-3">
+    <h2 className="text-xl font-semibold">Freelance Requests</h2>
+    <p className="text-sm text-gray-500 dark:text-gray-300">
+      {freelanceRequests.length} request(s)
+    </p>
+  </div>
+
+  {/* Status Summary */}
+  {freelanceRequests.length > 0 && (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+      {[
+        { label: "⏳ Pending", key: "pending", color: "yellow" },
+        { label: "🔄 In Progress", key: "in_progress", color: "blue" },
+        { label: "👁️ Review", key: "review", color: "purple" },
+        { label: "✅ Completed", key: "completed", color: "green" },
+        { label: "🎯 Approved", key: "approved", color: "emerald" },
+      ].map((st) => (
+        <div
+          key={st.key}
+          className={`rounded-lg p-3 border bg-${st.color}-50 dark:bg-${st.color}-900/20 border-${st.color}-200 dark:border-${st.color}-800 text-center`}
+        >
+          <div className={`text-2xl font-bold text-${st.color}-700 dark:text-${st.color}-300`}>
+            {freelanceRequests.filter((r) =>
+              st.key === "pending"
+                ? !r.status || r.status === "pending"
+                : r.status === st.key
+            ).length}
+          </div>
+          <div className={`text-xs text-${st.color}-600 dark:text-${st.color}-400`}>
+            {st.label}
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+
+  {/* Table */}
+  {freelanceRequests.length ? (
+    <div className="overflow-x-auto rounded-lg border dark:border-gray-700">
+      <table className="w-full border-collapse min-w-max">
+        <thead>
+          <tr className="bg-gray-100 dark:bg-gray-700 text-left text-sm">
+            {[
+              "Client",
+              "Email",
+              "Budget",
+              "Timeline",
+              "Description",
+              "Attachment",
+              "Status",
+              "Actions",
+            ].map((h) => (
+              <th key={h} className="px-4 py-3 font-semibold whitespace-nowrap">
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+
+        <tbody>
+          {freelanceRequests
+            .sort((a, b) => {
+              const order = { pending: 0, in_progress: 1, review: 2, completed: 3, approved: 4 };
+              return (order[a.status] || 99) - (order[b.status] || 99);
+            })
+            .map((request) => (
+              <tr
+                key={request.id}
+                className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 transition"
+              >
+                {/* Client */}
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    
+                    <div>
+                      <p className="font-medium">{request.name}</p>
+                      <p className="text-xs text-gray-500">
+                        {new Date(request.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                </td>
+
+                {/* Email */}
+                <td className="px-4 py-3 text-sm">
+                  <a
+                    href={`mailto:${request.email}`}
+                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    {request.email}
+                  </a>
+                </td>
+
+                {/* Budget */}
+                <td className="px-4 py-3 text-sm">{request.budget || "-"}</td>
+
+                {/* Timeline */}
+                <td className="px-4 py-3 text-sm">{request.timeline || "-"}</td>
+
+                {/* Description */}
+                <td className="px-4 py-3 max-w-sm">
+                  <p
+                    className="text-sm text-gray-700 dark:text-gray-300 truncate"
+                    title={request.project_description}
+                  >
+                    {request.project_description}
+                  </p>
+                </td>
+
+                {/* Attachment */}
+                <td className="px-4 py-3 text-sm">
+                  {request.attachment_url ? (
+                      request.attachment_url.match(/\.(jpg|jpeg|png|gif|webp)$/i) && (
+                        <img
+                          src={request.attachment_url}
+                          className="w-14 h-14 object-cover border rounded-md"
+                        />
+                      
+                      )
+                  ) : (
+                    <span className="text-gray-400">-</span>
+                  )}
+                </td>
+
+                {/* Status */}
+                <td className="px-4 py-3">
+                  <select
+                    value={request.status || "pending"}
+                    onChange={(e) => updateRequestStatus(request.id, e.target.value)}
+                    disabled={updatingStatus === request.id}
+                    className="px-2 py-1 text-sm border rounded-md"
+                  >
+                    <option value="pending">⏳ Pending</option>
+                    <option value="in_progress">🔄 In Progress</option>
+                    <option value="review">👁️ Review</option>
+                    <option value="completed">✅ Completed</option>
+                    <option value="approved">🎯 Approved</option>
+                  </select>
+                </td>
+
+                {/* Actions */}
+                <td className="px-4 py-3">
+                  <button
+                    onClick={() => {
+                      if (confirm(`Delete request from ${request.name}?`)) {
+                        deleteFreelanceRequest(request.id);
+                      }
+                    }}
+                    className="px-3 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
+    </div>
+  ) : (
+    <p className="text-gray-600 dark:text-gray-300 text-center py-8">No freelance requests yet.</p>
+  )}
+</section>
 
         {/* Top grid: profile + charts */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1061,6 +1266,8 @@ education.forEach((e) => {
             )) : <p>No skills added.</p>}
           </div>
         </section>
+
+        
 
         {/* ADDRESS */}
         {/* <section className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow">

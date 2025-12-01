@@ -29,6 +29,7 @@ import AnimationLottie from "../../../components/animation-lottie";
 import EduLottie from "../../../src/lottie/education.json";
 import Skills from "../../skills"; // Assuming this is an external component
 import ProjectCard from "../../../src/components/project-card"; // Assuming this is the code-style card
+import HireMeSection from "../../../src/components/HireMeSection";
 
 // Dynamic import for Lottie to ensure it only runs on the client
 const DynamicLottie = dynamic(() => import("lottie-react"), { ssr: false });
@@ -135,7 +136,7 @@ export default function PublicProfile({ params }) {
         </div>
 
         {/* Right: 3D Animated Monitor + Card (Spans 2/5) */}
-        <div className="lg:col-span-2 relative h-[500px] flex items-center justify-center">
+        <div className="lg:col-span-2 relative h-[450px] flex items-center justify-center">
           <div className="absolute inset-0 z-0">
             {AnimatedMonitor && <DynamicAnimationLottie animationPath={AnimatedMonitor} />}
           </div>
@@ -199,7 +200,7 @@ export default function PublicProfile({ params }) {
   // --- Enhanced About / Who I am ---
   // =========================================================================
   const About = () => (
-    <section className="mx-auto py-12 lg:py-20 ">
+    <section className="mx-auto py-12 lg:py-12 ">
 
       {/* Main Section Header - Centered and stylized */}
       <h2 className="text-4xl lg:text-5xl text-white font-extrabold mb-12 text-center tracking-wider relative">
@@ -327,7 +328,7 @@ const ExperienceTimeline = ({ }) => (
   // --- Enhanced Projects Grid ---
   // =========================================================================
   const ProjectsGrid = () => (
-    <div id='projects' className="relative z-50 my-16 lg:my-32 px-4 border-t border-[#122033] pt-16">
+    <div id='projects' className="relative z-50 lg:my-12 px-4 border-t border-[#122033] pt-10">
       <div className="flex items-center justify-start relative mb-12">
         <h3 className="text-4xl lg:text-5xl font-extrabold text-white tracking-wider relative inline-block">
           <span className="bg-[#050612] px-4 z-10 relative">Showcase <ListChecks className="inline w-6 h-6 text-[#06b6d4]" /></span>
@@ -570,6 +571,7 @@ const EducationSection = () => (
             {/* Assuming the imported Skills component is what you want to use here */}
             <Skills />
             <EducationSection />
+              <HireMeSection />
             <BlogGrid />
             <Contact />
           </div>
